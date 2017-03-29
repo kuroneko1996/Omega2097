@@ -11,7 +11,17 @@ public class Engine {
     Loader loader = new Loader();
     ModelRenderer renderer = new ModelRenderer();
 
-    float[] vertices = { -0.5f, 0.5f, 0f, -0.5f, -0.5f, 0f, 0.5f, -0.5f, 0f, 0.5f, -0.5f, 0f, 0.5f, 0.5f, 0f, -0.5f, 0.5f, 0f
+    float[] vertices =
+    {
+        -0.5f, -0.5f, 0, // v0
+        0.5f, -0.5f, 0, // v1
+        0.5f, 0.5f, 0, // v2
+        -0.5f, 0.5f, 0 // v3
+    };
+    int[] indices =
+    {
+        0, 1, 2, // top left triangle
+        2, 3, 0 // bottom right triangle
     };
 
     Model model;
@@ -31,7 +41,7 @@ public class Engine {
     void init() {
         lastLoopTime = getTime();
 
-        model = loader.loadToVAO(vertices);
+        model = loader.loadToVAO(vertices, indices);
     }
     private void input() {
         glfwPollEvents();
@@ -39,6 +49,7 @@ public class Engine {
     private void update(float delta) {
     }
     private void render() {
+        GL11.glClearColor(0,0,0,1);
         GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear frame/depth buffer
         renderer.render(model);
 
