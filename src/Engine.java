@@ -4,7 +4,6 @@ import shaders.StaticShader;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.glClear;
 
 public class Engine {
     public boolean running = false;
@@ -43,7 +42,8 @@ public class Engine {
     void init() {
         lastLoopTime = getTime();
 
-        model = loader.loadToVAO(vertices, indices);
+        //model = (new Loader()).loadToVAO(vertices, indices);
+        model = ObjLoader.load("911", loader);
         shader = new StaticShader();
     }
     private void input() {

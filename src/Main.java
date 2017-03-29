@@ -13,7 +13,7 @@ public class Main {
         if (!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
-        window = GLFW.glfwCreateWindow(640, 480, "GLFW TEST", 0,0);
+        window = GLFW.glfwCreateWindow(640, 480, "Omega 2097", 0,0);
         if (window == 0) {
             glfwTerminate();
             throw new RuntimeException("Failed to create GLFW Window");
