@@ -1,4 +1,5 @@
 import org.lwjgl.opengl.GL11;
+import shaders.StaticShader;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
@@ -10,6 +11,7 @@ public class Engine {
 
     Loader loader = new Loader();
     ModelRenderer renderer = new ModelRenderer();
+    StaticShader shader;
 
     float[] vertices =
     {
@@ -42,6 +44,7 @@ public class Engine {
         lastLoopTime = getTime();
 
         model = loader.loadToVAO(vertices, indices);
+        shader = new StaticShader();
     }
     private void input() {
         glfwPollEvents();
@@ -51,7 +54,10 @@ public class Engine {
     private void render() {
         GL11.glClearColor(0,0,0,1);
         GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear frame/depth buffer
+
+        shader.start();
         renderer.render(model);
+        shader.stop();
 
         glfwSwapBuffers(window);
 
@@ -69,6 +75,7 @@ public class Engine {
             render();
         }
 
+        shader.cleanUp();
         loader.cleanUp();
     }
 }
