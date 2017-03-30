@@ -46,10 +46,10 @@ public class Engine {
         camera.setPosition(new Vector3f(0,0.5f,0));
         viewMatrix = Util.createViewMatrix(camera);
 
-        Model carModel = ObjLoader.load("car", loader);
-        GameObject car1 = new GameObject(carModel);
-        car1.setPosition(new Vector3f(0,0,-5));
-        gameObjects.add(car1);
+        Model levelModel = ObjLoader.load("test_level", loader);
+        GameObject levelObject = new GameObject(levelModel);
+        levelObject.setPosition(new Vector3f(0,0,0));
+        gameObjects.add(levelObject);
     }
     private void input() {
         glfwPollEvents();

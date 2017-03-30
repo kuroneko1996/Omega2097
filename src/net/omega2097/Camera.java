@@ -14,31 +14,33 @@ public class Camera {
 
     public boolean update() {
         boolean updated = false;
+        float spd = 0.1f;
+        float newAngleY = yaw;
+        float dx = (float) (spd * Math.sin(Math.toRadians(newAngleY)));
+        float dz = (float) (spd * Math.cos(Math.toRadians(newAngleY)));
 
         if(KeyboardHandler.isKeyDown(GLFW_KEY_W)){
-            position.z -= 0.1f;
+            position.x += dx;
+            position.z -= dz;
             updated = true;
         }
         if(KeyboardHandler.isKeyDown(GLFW_KEY_S)){
-            position.z += 0.1f;
+            position.x -= dx;
+            position.z += dz;
             updated = true;
         }
         if(KeyboardHandler.isKeyDown(GLFW_KEY_D)){
-            position.x += 0.1f;
-            updated = true;
+            newAngleY = (yaw + 2) % 360;
         }
         if(KeyboardHandler.isKeyDown(GLFW_KEY_A)){
-            position.x -= 0.1f;
+            newAngleY = (yaw - 2) % 360;
+        }
+
+        if (newAngleY != yaw) {
+            yaw = newAngleY;
             updated = true;
         }
-        if(KeyboardHandler.isKeyDown(GLFW_KEY_RIGHT)){
-            yaw = (yaw + 2) % 360;
-            updated = true;
-        }
-        if(KeyboardHandler.isKeyDown(GLFW_KEY_LEFT)){
-            yaw = (yaw - 2) % 360;
-            updated = true;
-        }
+
         return updated;
     }
 

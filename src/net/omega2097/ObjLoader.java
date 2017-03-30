@@ -52,7 +52,7 @@ public class ObjLoader {
                     normals.add(normal);
                 } else if (line.startsWith("f")) { // faces section
                     for (int i = 1; i <= 3; i++) {
-                        String[] vertexData = currentLine[i].split("\\s+");
+                        String[] vertexData = currentLine[i].split("/");
                         processVertex(vertexData, indices);
                     }
                 }
