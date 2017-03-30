@@ -1,5 +1,9 @@
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.vector.Vector3f;
 import shaders.StaticShader;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
@@ -12,20 +16,7 @@ public class Engine {
     MeshRenderer renderer = new MeshRenderer();
     StaticShader shader;
 
-    float[] vertices =
-    {
-        -0.5f, -0.5f, 0, // v0
-        0.5f, -0.5f, 0, // v1
-        0.5f, 0.5f, 0, // v2
-        -0.5f, 0.5f, 0 // v3
-    };
-    int[] indices =
-    {
-        0, 1, 2, // top left triangle
-        2, 3, 0 // bottom right triangle
-    };
-
-    Model model;
+    List<GameObject> gameObjects = new ArrayList<>();
 
     private double lastLoopTime;
     private long window;
@@ -42,7 +33,11 @@ public class Engine {
     void init() {
         lastLoopTime = getTime();
 
-        model = ObjLoader.load("911", loader);
+        Model carModel = ObjLoader.load("car", loader);
+        GameObject car1 = new GameObject(carModel);
+        car1.setRotation(new Vector3f(90,0,0));
+        gameObjects.add(car1);
+
         shader = new StaticShader();
     }
     private void input() {
@@ -51,12 +46,13 @@ public class Engine {
     private void update(float delta) {
     }
     private void render() {
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glClearColor(0,0,0,1);
         GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear frame/depth buffer
 
-        shader.start();
-        renderer.render(model);
-        shader.stop();
+        for(GameObject gameObject: gameObjects) {
+            renderer.render(gameObject, shader);
+        }
 
         glfwSwapBuffers(window);
 
