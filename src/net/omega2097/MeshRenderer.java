@@ -6,6 +6,7 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
 import net.omega2097.shaders.StaticShader;
 import net.omega2097.util.Util;
+import org.lwjgl.util.vector.Vector3f;
 
 public class MeshRenderer {
 
@@ -13,12 +14,15 @@ public class MeshRenderer {
     private static final float NEAR_PLANE = 0.1f;
     private static final float FAR_PLANE = 1000f;
     private Matrix4f projectionMatrix;
+    private Matrix4f transformationMatrix;
     private float aspectRatio;
 
     public MeshRenderer(float aspectRatio, StaticShader shader) {
         this.aspectRatio = aspectRatio;
         createProjectionMatrix();
         loadProjectionMatrixIntoShader(shader);
+
+        transformationMatrix = Util.createTransformationMatrix(new Vector3f(0,0,0), new Vector3f(0,0,0), new Vector3f(1,1,1));
     }
 
     public void loadProjectionMatrixIntoShader(StaticShader shader) {
@@ -36,7 +40,7 @@ public class MeshRenderer {
         GL30.glBindVertexArray(model.getVaoID());
         GL20.glEnableVertexAttribArray(0);
 
-        Matrix4f transformationMatrix = Util.createTransformationMatrix(gameObject.getPosition(),
+        Util.updateTransformationMatrix(transformationMatrix, gameObject.getPosition(),
                 gameObject.getRotation(), gameObject.getScale());
         shader.loadTransformationMatrix(transformationMatrix);
         GL11.glDrawElements(GL11.GL_TRIANGLES, model.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);

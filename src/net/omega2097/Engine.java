@@ -20,6 +20,8 @@ public class Engine {
     MeshRenderer renderer;
     StaticShader shader;
     Camera camera;
+    Matrix4f viewMatrix;
+
 
     List<GameObject> gameObjects = new ArrayList<>();
 
@@ -42,6 +44,7 @@ public class Engine {
         renderer = new MeshRenderer(aspectRatio, shader);
         camera = new Camera();
         camera.setPosition(new Vector3f(0,0.5f,0));
+        viewMatrix = Util.createViewMatrix(camera);
 
         Model carModel = ObjLoader.load("car", loader);
         GameObject car1 = new GameObject(carModel);
@@ -52,21 +55,20 @@ public class Engine {
         glfwPollEvents();
     }
     private void update(float delta) {
-        camera.update();
+        if (camera.update()) {
+            Util.updateViewMatrix(viewMatrix, camera.getPosition(), camera.getPitch(), camera.getYaw());
+        }
     }
     private void render() {
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glClearColor(0,0,0,1);
         GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear frame/depth buffer
 
-        Matrix4f viewMatrix = Util.createViewMatrix(camera);
-
         for(GameObject gameObject: gameObjects) {
             renderer.render(gameObject, shader, viewMatrix);
         }
 
         glfwSwapBuffers(window);
-
     }
 
     public void startGameLoop(long window) {
