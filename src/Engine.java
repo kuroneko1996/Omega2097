@@ -9,7 +9,7 @@ public class Engine {
     public boolean running = false;
 
     Loader loader = new Loader();
-    ModelRenderer renderer = new ModelRenderer();
+    MeshRenderer renderer = new MeshRenderer();
     StaticShader shader;
 
     float[] vertices =
@@ -42,7 +42,6 @@ public class Engine {
     void init() {
         lastLoopTime = getTime();
 
-        //model = (new Loader()).loadToVAO(vertices, indices);
         model = ObjLoader.load("911", loader);
         shader = new StaticShader();
     }
