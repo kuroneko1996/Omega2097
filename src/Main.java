@@ -1,7 +1,9 @@
 
 import net.omega2097.Engine;
+import net.omega2097.KeyboardHandler;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.opengl.GL;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -9,15 +11,18 @@ import static org.lwjgl.glfw.GLFW.*;
 public class Main {
     private long window;
     private GLFWErrorCallback errorCallback = GLFWErrorCallback.createPrint(System.err);
+    private GLFWKeyCallback keyCallback;
 
-    private float windowWidth = 640;
-    private float windowHeight = 480;
+    private int windowWidth = 640;
+    private int windowHeight = 480;
 
     private void init() {
         if (!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
-        window = GLFW.glfwCreateWindow(640, 480, "Omega 2097", 0,0);
+
+        window = GLFW.glfwCreateWindow(windowWidth, windowHeight, "Omega 2097", 0,0);
+        glfwSetKeyCallback(window, keyCallback = new KeyboardHandler());
         if (window == 0) {
             glfwTerminate();
             throw new RuntimeException("Failed to create GLFW Window");
@@ -28,7 +33,7 @@ public class Main {
     }
 
     private void run(Engine engine) {
-        float aspectRatio = windowWidth / windowHeight;
+        float aspectRatio = (float)windowWidth / (float)windowHeight;
 
         try {
             init();
@@ -38,6 +43,7 @@ public class Main {
             glfwDestroyWindow(window);
         } finally {
             glfwTerminate();
+            keyCallback.free();
             errorCallback.free();
         }
     }

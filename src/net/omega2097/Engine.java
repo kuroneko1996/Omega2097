@@ -41,17 +41,18 @@ public class Engine {
         shader = new StaticShader();
         renderer = new MeshRenderer(aspectRatio, shader);
         camera = new Camera();
+        camera.setPosition(new Vector3f(0,0.5f,0));
 
         Model carModel = ObjLoader.load("car", loader);
         GameObject car1 = new GameObject(carModel);
         car1.setPosition(new Vector3f(0,0,-5));
-        car1.setRotation(new Vector3f(180,0,0));
         gameObjects.add(car1);
     }
     private void input() {
         glfwPollEvents();
     }
     private void update(float delta) {
+        camera.update();
     }
     private void render() {
         GL11.glEnable(GL11.GL_DEPTH_TEST);
