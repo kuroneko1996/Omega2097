@@ -1,4 +1,4 @@
-package util;
+package net.omega2097.util;
 
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
