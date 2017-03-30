@@ -1,3 +1,5 @@
+package net.omega2097;
+
 import org.lwjgl.util.vector.Vector3f;
 
 public class GameObject {

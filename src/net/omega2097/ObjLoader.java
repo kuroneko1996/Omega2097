@@ -1,4 +1,5 @@
-import org.lwjgl.util.vector.Vector;
+package net.omega2097;
+
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 

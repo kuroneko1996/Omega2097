@@ -1,6 +1,10 @@
+package net.omega2097;
+
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
-import shaders.StaticShader;
+import net.omega2097.shaders.StaticShader;
+import util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +12,7 @@ import java.util.List;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static util.Util.createViewMatrix;
 
 public class Engine {
     public boolean running = false;
@@ -15,6 +20,7 @@ public class Engine {
     Loader loader = new Loader();
     MeshRenderer renderer;
     StaticShader shader;
+    Camera camera;
 
     List<GameObject> gameObjects = new ArrayList<>();
 
@@ -30,11 +36,12 @@ public class Engine {
         lastLoopTime = time;
         return delta;
     }
-    void init(float aspectRatio) {
+    public void init(float aspectRatio) {
         lastLoopTime = getTime();
 
         shader = new StaticShader();
         renderer = new MeshRenderer(aspectRatio, shader);
+        camera = new Camera();
 
         Model carModel = ObjLoader.load("car", loader);
         GameObject car1 = new GameObject(carModel);
@@ -52,15 +59,17 @@ public class Engine {
         GL11.glClearColor(0,0,0,1);
         GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear frame/depth buffer
 
+        Matrix4f viewMatrix = Util.createViewMatrix(camera);
+
         for(GameObject gameObject: gameObjects) {
-            renderer.render(gameObject, shader);
+            renderer.render(gameObject, shader, viewMatrix);
         }
 
         glfwSwapBuffers(window);
 
     }
 
-    void startGameLoop(long window) {
+    public void startGameLoop(long window) {
         this.window = window;
         //long targetTime = 1000 / 60; // 60 fps
 

@@ -1,4 +1,5 @@
 
+import net.omega2097.Engine;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;

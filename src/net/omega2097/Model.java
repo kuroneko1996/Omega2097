@@ -1,3 +1,5 @@
+package net.omega2097;
+
 public class Model {
     public int getVaoID() {
         return vaoID;

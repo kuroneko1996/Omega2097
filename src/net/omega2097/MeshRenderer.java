@@ -1,8 +1,10 @@
+package net.omega2097;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
-import shaders.StaticShader;
+import net.omega2097.shaders.StaticShader;
 import util.Util;
 
 public class MeshRenderer {
@@ -25,10 +27,12 @@ public class MeshRenderer {
         shader.stop();
     }
 
-    public void render(GameObject gameObject, StaticShader shader) {
+    public void render(GameObject gameObject, StaticShader shader, Matrix4f viewMatrix) {
         Model model = gameObject.getModel();
 
         shader.start();
+        shader.loadViewMatrix(viewMatrix);
+
         GL30.glBindVertexArray(model.getVaoID());
         GL20.glEnableVertexAttribArray(0);
 

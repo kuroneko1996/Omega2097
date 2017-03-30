@@ -1,4 +1,4 @@
-package shaders;
+package net.omega2097.shaders;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
