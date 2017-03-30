@@ -13,7 +13,7 @@ public class Engine {
     public boolean running = false;
 
     Loader loader = new Loader();
-    MeshRenderer renderer = new MeshRenderer();
+    MeshRenderer renderer;
     StaticShader shader;
 
     List<GameObject> gameObjects = new ArrayList<>();
@@ -30,15 +30,17 @@ public class Engine {
         lastLoopTime = time;
         return delta;
     }
-    void init() {
+    void init(float aspectRatio) {
         lastLoopTime = getTime();
+
+        shader = new StaticShader();
+        renderer = new MeshRenderer(aspectRatio, shader);
 
         Model carModel = ObjLoader.load("car", loader);
         GameObject car1 = new GameObject(carModel);
-        car1.setRotation(new Vector3f(90,0,0));
+        car1.setPosition(new Vector3f(0,0,-5));
+        car1.setRotation(new Vector3f(180,0,0));
         gameObjects.add(car1);
-
-        shader = new StaticShader();
     }
     private void input() {
         glfwPollEvents();

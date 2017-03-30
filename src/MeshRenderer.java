@@ -6,8 +6,23 @@ import shaders.StaticShader;
 import util.Util;
 
 public class MeshRenderer {
-    public void prepare() {
 
+    private static final float FOV = 70;
+    private static final float NEAR_PLANE = 0.1f;
+    private static final float FAR_PLANE = 1000f;
+    private Matrix4f projectionMatrix;
+    private float aspectRatio;
+
+    public MeshRenderer(float aspectRatio, StaticShader shader) {
+        this.aspectRatio = aspectRatio;
+        createProjectionMatrix();
+        loadProjectionMatrixIntoShader(shader);
+    }
+
+    public void loadProjectionMatrixIntoShader(StaticShader shader) {
+        shader.start();
+        shader.loadProjectionMatrix(projectionMatrix);
+        shader.stop();
     }
 
     public void render(GameObject gameObject, StaticShader shader) {
@@ -25,5 +40,19 @@ public class MeshRenderer {
         GL20.glDisableVertexAttribArray(0);
         GL30.glBindVertexArray(0);
         shader.stop();
+    }
+
+    private void createProjectionMatrix() {
+        float yScale = (float)((1f / Math.tan(Math.toRadians(FOV / 2f))) * aspectRatio);
+        float xScale = yScale / aspectRatio;
+        float frustumLength = FAR_PLANE - NEAR_PLANE;
+
+        projectionMatrix = new Matrix4f();
+        projectionMatrix.m00 = xScale;
+        projectionMatrix.m11 = yScale;
+        projectionMatrix.m22 = -((FAR_PLANE + NEAR_PLANE) / frustumLength);
+        projectionMatrix.m23 = -1;
+        projectionMatrix.m32 = -((2 * NEAR_PLANE * FAR_PLANE) / frustumLength);
+        projectionMatrix.m33 = 0;
     }
 }

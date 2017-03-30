@@ -9,6 +9,9 @@ public class Main {
     private long window;
     private GLFWErrorCallback errorCallback = GLFWErrorCallback.createPrint(System.err);
 
+    private float windowWidth = 640;
+    private float windowHeight = 480;
+
     private void init() {
         if (!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW");
@@ -24,9 +27,11 @@ public class Main {
     }
 
     private void run(Engine engine) {
+        float aspectRatio = windowWidth / windowHeight;
+
         try {
             init();
-            engine.init();
+            engine.init(aspectRatio);
             engine.startGameLoop(window);
 
             glfwDestroyWindow(window);
