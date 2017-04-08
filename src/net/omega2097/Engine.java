@@ -28,8 +28,9 @@ public class Engine {
     private double lastLoopTime;
     private double lastTime;
     private int framesNumber;
-    private long window;
+    private Window window;
     private StringBuilder windowTitle = new StringBuilder(64);
+    private MouseInput mouseInput;
 
     private double getTime() {
         return glfwGetTime();
@@ -40,7 +41,12 @@ public class Engine {
         lastLoopTime = time;
         return delta;
     }
-    public void init(float aspectRatio) {
+    public void init(Window window, MouseInput mouseInput) {
+        this.mouseInput = mouseInput;
+        this.window = window;
+
+        float aspectRatio = (float)window.width / (float)window.height;
+
         lastLoopTime = getTime();
         lastTime = getTime();
 
@@ -61,7 +67,12 @@ public class Engine {
         glfwPollEvents();
     }
     private void update(float delta) {
-        if (camera.update()) {
+        mouseInput.update();
+        if (window.isMouseLocked()) {
+            glfwSetCursorPos(window.id, window.width / 2.0f, window.height / 2.0f);
+        }
+
+        if (camera.update(mouseInput)) {
             Util.updateViewMatrix(viewMatrix, camera.getPosition(), camera.getPitch(), camera.getYaw());
         }
     }
@@ -74,14 +85,13 @@ public class Engine {
             renderer.render(gameObject, shader, viewMatrix);
         }
 
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(window.id);
     }
 
-    public void startGameLoop(long window) {
-        this.window = window;
+    public void startGameLoop() {
         //long targetTime = 1000 / 60; // 60 fps
 
-        while (!glfwWindowShouldClose(window)) {
+        while (!glfwWindowShouldClose(window.id)) {
             float delta = getDelta();
 
             input();
@@ -94,7 +104,7 @@ public class Engine {
                 windowTitle.delete(0, windowTitle.length());
                 windowTitle.append("FPS: ").append(framesNumber).append("  ").append(1.0f/framesNumber)
                            .append(" ms");
-                glfwSetWindowTitle(window, windowTitle.toString());
+                glfwSetWindowTitle(window.id, windowTitle.toString());
                 lastTime += 1.0;
                 framesNumber = 0;
             }

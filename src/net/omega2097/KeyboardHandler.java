@@ -21,7 +21,9 @@ public class KeyboardHandler extends GLFWKeyCallback {
     }
 
     public static boolean isKeyDown(int key) {
-        // TODO check for length
+        if (key < 0 || key >= 512) {
+            return false;
+        }
         return pressed[key];
     }
 }
