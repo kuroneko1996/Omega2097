@@ -30,8 +30,9 @@ public class ObjLoader {
         List<Vector3f> normals = new ArrayList<>();
         List<Integer> indices = new ArrayList<>();
 
-        float[] verticesArray = null;
-        int[] indicesArray = null;
+        float[] verticesArray;
+        int[] indicesArray;
+        float[] textureCoordinates;
 
         try {
             while ( (line = bReader.readLine()) != null) {
@@ -67,6 +68,7 @@ public class ObjLoader {
         // convert to vertices and indices arrays
         verticesArray = new float[vertices.size() * 3];
         indicesArray = new int[indices.size()];
+        textureCoordinates = new float[textures.size() * 2];
 
         int vertexIndex = 0;
         for(Vector3f vertex:vertices) {
@@ -78,7 +80,13 @@ public class ObjLoader {
             indicesArray[i] = indices.get(i);
         }
 
-        return loader.loadToVAO(verticesArray, indicesArray);
+        vertexIndex = 0;
+        for(Vector2f texture:textures) {
+            textureCoordinates[vertexIndex++] = texture.x;
+            textureCoordinates[vertexIndex++] = texture.y;
+        }
+
+        return loader.loadToVAO(verticesArray, textureCoordinates, indicesArray);
     }
 
     private static void processVertex(String[] vertexData, List<Integer> indices) {

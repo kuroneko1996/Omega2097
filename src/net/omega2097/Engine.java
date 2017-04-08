@@ -26,7 +26,10 @@ public class Engine {
     List<GameObject> gameObjects = new ArrayList<>();
 
     private double lastLoopTime;
+    private double lastTime;
+    private int framesNumber;
     private long window;
+    private StringBuilder windowTitle = new StringBuilder(64);
 
     private double getTime() {
         return glfwGetTime();
@@ -39,6 +42,7 @@ public class Engine {
     }
     public void init(float aspectRatio) {
         lastLoopTime = getTime();
+        lastTime = getTime();
 
         shader = new StaticShader();
         renderer = new MeshRenderer(aspectRatio, shader);
@@ -47,6 +51,8 @@ public class Engine {
         viewMatrix = Util.createViewMatrix(camera);
 
         Model levelModel = ObjLoader.load("test_level", loader);
+        levelModel.setTextureID(loader.loadTexture("gray.bmp"));
+
         GameObject levelObject = new GameObject(levelModel);
         levelObject.setPosition(new Vector3f(0,0,0));
         gameObjects.add(levelObject);
@@ -81,6 +87,17 @@ public class Engine {
             input();
             update(delta);
             render();
+
+            // calculates fps and ms
+            framesNumber++;
+            if (getTime() - lastTime >= 1.0) {
+                windowTitle.delete(0, windowTitle.length());
+                windowTitle.append("FPS: ").append(framesNumber).append("  ").append(1.0f/framesNumber)
+                           .append(" ms");
+                glfwSetWindowTitle(window, windowTitle.toString());
+                lastTime += 1.0;
+                framesNumber = 0;
+            }
         }
 
         shader.cleanUp();

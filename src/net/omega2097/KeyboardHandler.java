@@ -10,6 +10,9 @@ public class KeyboardHandler extends GLFWKeyCallback {
 
     @Override
     public void invoke(long window, int key, int scancode, int action, int mods) {
+        if (key < 0 || key >= 512) {
+            return;
+        }
         if (action == GLFW_PRESS) {
             pressed[key] = true;
         } else if (action == GLFW_RELEASE) {

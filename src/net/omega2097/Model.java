@@ -19,6 +19,25 @@ public class Model {
 
     private int vaoID;
     private int vertexCount;
+    private int textureID;
+
+    public boolean isTextured() {
+        return textured;
+    }
+
+    public void setTextured(boolean textured) {
+        this.textured = textured;
+    }
+
+    private boolean textured = false; // doesn't have uv coordinates
+
+    public int getTextureID() {
+        return textureID;
+    }
+
+    public void setTextureID(int textureID) {
+        this.textureID = textureID;
+    }
 
     public Model(int vaoID, int vertexCount) {
         this.vaoID = vaoID;

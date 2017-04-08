@@ -10,6 +10,7 @@ public class StaticShader extends ShaderProgram {
     private int locationOfTransformationMatrix;
     private int locationOfProjectionMatrix;
     private int locationOfViewMatrix;
+    private int textureSampler;
 
     public StaticShader() {
         super(VERTEX_FILE, FRAGMENT_FILE);
@@ -30,6 +31,7 @@ public class StaticShader extends ShaderProgram {
     @Override
     protected void bindAttributes() {
         super.bindAttribute(0, "position");
+        super.bindAttribute(1, "texcoords");
     }
 
     @Override
@@ -37,5 +39,6 @@ public class StaticShader extends ShaderProgram {
         locationOfTransformationMatrix = super.getUniformLocation("transformationMatrix");
         locationOfProjectionMatrix = super.getUniformLocation("projectionMatrix");
         locationOfViewMatrix = super.getUniformLocation("viewMatrix");
+        textureSampler = super.getUniformLocation("textureSampler");
     }
 }

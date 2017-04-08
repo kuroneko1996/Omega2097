@@ -64,6 +64,10 @@ public abstract class ShaderProgram {
         GL20.glUniformMatrix4fv(location, false, matrixBuffer);
     }
 
+    protected void loadInt(int location, int value) {
+        GL20.glUniform1i(location, value);
+    }
+
     private static int load(String fileName, int type) {
         StringBuilder shaderSource = new StringBuilder();
         try {
