@@ -56,8 +56,8 @@ public class Engine {
         camera.setPosition(new Vector3f(0,0.5f,0));
         viewMatrix = Util.createViewMatrix(camera);
 
-        Model levelModel = ObjLoader.load("test_level", loader);
-        levelModel.setTextureID(loader.loadTexture("gray.bmp"));
+        Model levelModel = (new ObjLoader()).load("cube", loader);
+        levelModel.setTextureID(loader.loadTexture("res/gray.png"));
 
         GameObject levelObject = new GameObject(levelModel);
         levelObject.setPosition(new Vector3f(0,0,0));

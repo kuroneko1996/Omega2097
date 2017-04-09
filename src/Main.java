@@ -47,6 +47,9 @@ public class Main {
             engine.startGameLoop();
 
             glfwDestroyWindow(window.id);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         } finally {
             glfwTerminate();
             keyCallback.free();
