@@ -1,5 +1,9 @@
 package net.omega2097;
 
+import net.omega2097.map.Map;
+import net.omega2097.map.RandomRoomGenerator;
+import net.omega2097.map.Tile;
+import net.omega2097.util.Random;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
@@ -57,14 +61,36 @@ public class Engine {
         viewMatrix = Util.createViewMatrix(camera);
 
 
-        MapLoader mapLoader = new MapLoader();
-        gameObjects = mapLoader.load("res/test_map.json");
+        //MapLoader mapLoader = new MapLoader();
+        //gameObjects = mapLoader.load("res/test_map.json");
+        Random random = new Random(998);
+        RandomRoomGenerator<Map> roomGenerator = new RandomRoomGenerator<>(32,32, 10, 6,
+                9, random);
+        Map map = new Map();
+        roomGenerator.createMap(map);
+        // generate game objects
+        for (int x = 0; x < map.getWidth(); x++) {
+            for (int y = 0; y < map.getHeight(); y++) {
+                Tile tile = map.getTileAt(x, y);
+                if (!tile.isWalkable() && !tile.isTransparent()) {
+                    GameObject gameObject = new GameObject("cube", "wall.png");
+                    gameObject.setScale(new Vector3f(0.5f, 0.5f, 0.5f)); // TODO fix the model
+                    gameObject.setPosition(new Vector3f(y, -1, x));
+                    gameObjects.add(gameObject);
+                    System.out.print("#");
+                } else {
+                    System.out.print(" ");
+                }
+            }
+            System.out.print("\n");
+        }
 
         for(GameObject gameObject : gameObjects) {
             Model model = (new ObjLoader()).load("res/" + gameObject.getModelName(), loader);
             model.setTextureID(loader.loadTexture("res/" + gameObject.getTextureName()));
             gameObject.setModel(model);
         }
+        System.out.println("Total " + gameObjects.size() + " game objects created");
     }
     private void input() {
         glfwPollEvents();
