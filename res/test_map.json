@@ -1,0 +1,22 @@
+{
+  "title": "Test Map",
+  "description": "For testing purposes",
+  "objects": [
+    {
+      "name": "cube",
+      "model": "cube",
+      "texture": "gray.png",
+      "position": [0,0,0],
+      "rotation": [0,0,0],
+      "scale": [1,1,1]
+    },
+    {
+      "name": "cube moved, rotated and scaled",
+      "model": "cube",
+      "texture": "gray.png",
+      "position": [4,0,0],
+      "rotation": [0,45,0],
+      "scale": [2,2,2]
+    }
+  ]
+}
