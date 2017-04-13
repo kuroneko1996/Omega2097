@@ -26,7 +26,7 @@ public class Map implements IMap {
 
         for(int x = 0; x < width; x++) {
             for(int y = 0; y < height; y++) {
-                this.tiles[x + y*width] = new Tile();
+                this.tiles[x + y*width] = new Tile(x, y);
             }
         }
     }
@@ -43,5 +43,16 @@ public class Map implements IMap {
             throw new RuntimeException("Bad tile coordinates: " + x + ", " + y);
         }
         return tiles[x + y * width];
+    }
+
+    public Tile getRandomClearTile() {
+        Tile tile = new Tile(0, 0);
+        for(int i = 0; i < tiles.length; i++) {
+            if (tiles[i].isWalkable() && tiles[i].isTransparent()) {
+                tile = tiles[i];
+                break;
+            }
+        }
+        return tile;
     }
 }

@@ -30,21 +30,17 @@ public class MeshBuilder {
         return mesh;
     }
 
-    public void buildQuad(Vector3f offset, Vector3f widthDir, Vector3f lengthDir) {
+    public void buildQuad(Vector3f offset, Vector3f widthDir, Vector3f lengthDir, List<Vector2f> customUV) {
         MeshBuilder builder = this;
-
-        Mesh mesh = new Mesh();
 
         Vector3f normal = new Vector3f();
         Vector3f.cross(lengthDir, widthDir, normal);
         normal.normalise();
 
         builder.vertices.add(offset);
-        builder.uv.add(new Vector2f(0, 0));
         builder.normals.add(normal);
 
         builder.vertices.add(Vector3f.add(offset, lengthDir, null));
-        builder.uv.add(new Vector2f(0.0f, 1.0f));
         builder.normals.add(normal);
 
         // offset + length + width
@@ -52,16 +48,27 @@ public class MeshBuilder {
         Vector3f.add(offset, lengthDir, tmp);
         Vector3f.add(tmp, widthDir, tmp);
         builder.vertices.add(tmp);
-        builder.uv.add(new Vector2f(1.0f, 1.0f));
         builder.normals.add(normal);
 
         builder.vertices.add(Vector3f.add(offset, widthDir, null));
-        builder.uv.add(new Vector2f(1.0f, 0.0f));
         builder.normals.add(normal);
+
+        if (customUV == null) {
+            builder.uv.add(new Vector2f(0, 0));
+            builder.uv.add(new Vector2f(0.0f, 1.0f));
+            builder.uv.add(new Vector2f(1.0f, 1.0f));
+            builder.uv.add(new Vector2f(1.0f, 0.0f));
+        } else {
+            builder.uv.addAll(customUV);
+        }
 
         int baseIndex = builder.vertices.size() - 4;
 
         builder.addTriangle(baseIndex, baseIndex + 1, baseIndex + 2);
         builder.addTriangle(baseIndex, baseIndex + 2, baseIndex + 3);
+    }
+
+    public void buildQuad(Vector3f offset, Vector3f widthDir, Vector3f lengthDir) {
+        buildQuad(offset, widthDir, lengthDir, null);
     }
 }

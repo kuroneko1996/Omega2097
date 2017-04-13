@@ -76,7 +76,7 @@ public class Engine {
                 if (!tile.isWalkable() && !tile.isTransparent()) {
                     GameObject gameObject = primGen.generateCube();
                     gameObject.setPosition(new Vector3f(y, 0, x));
-                    gameObject.setTextureName("wall1.png");
+                    gameObject.setTextureName("w_wall1.png");
                     gameObject.getModel().setTextureID(loader.loadTexture("res/" + gameObject.getTextureName()));
 
                     gameObjects.add(gameObject);
@@ -91,18 +91,22 @@ public class Engine {
         // Make floor and ceil
         GameObject floor = primGen.generateNewQuad(32, 32);
         floor.setPosition(new Vector3f(0, 0, 0));
-        floor.setTextureName("floor1.png");
+        floor.setTextureName("w_floor1.png");
         floor.getModel().setTextureID(loader.loadTexture("res/" + floor.getTextureName()));
 
         GameObject ceil = primGen.generateNewQuad(32, 32);
         ceil.setPosition(new Vector3f(0, 1, 0));
-        ceil.setTextureName("ceil1.png");
+        ceil.setTextureName("w_ceil1.png");
         ceil.getModel().setTextureID(loader.loadTexture("res/" + ceil.getTextureName()));
 
         gameObjects.add(floor);
         gameObjects.add(ceil);
 
         System.out.println("Total " + gameObjects.size() + " game objects created");
+
+        Tile startTile = map.getRandomClearTile();
+        System.out.println("Start at " + startTile.getX() + ", " + startTile.getY());
+        camera.setPosition(new Vector3f(startTile.getY() + 0.5f, 0.5f, startTile.getX() + 0.5f));
     }
     private void input() {
         glfwPollEvents();
