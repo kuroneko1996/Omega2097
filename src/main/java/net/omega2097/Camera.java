@@ -53,6 +53,11 @@ public class Camera {
 
     public boolean updateRotation(float offsetX, float offsetY, float offsetZ) {
         pitch = (pitch + offsetY) % 360;
+        if (pitch > 90) {
+            pitch = 90;
+        } else if (pitch < -90) {
+            pitch = -90;
+        }
         yaw = (yaw + offsetX) % 360;
         roll = (roll + offsetZ) % 360;
 

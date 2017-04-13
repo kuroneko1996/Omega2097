@@ -3,6 +3,7 @@ package net.omega2097;
 import net.omega2097.map.Map;
 import net.omega2097.map.RandomRoomGenerator;
 import net.omega2097.map.Tile;
+import net.omega2097.util.PrimitivesGenerator;
 import net.omega2097.util.Random;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
@@ -61,21 +62,23 @@ public class Engine {
         viewMatrix = Util.createViewMatrix(camera);
 
 
-        //MapLoader mapLoader = new MapLoader();
-        //gameObjects = mapLoader.load("res/test_map.json");
         Random random = new Random(998);
         RandomRoomGenerator<Map> roomGenerator = new RandomRoomGenerator<>(32,32, 10, 6,
                 9, random);
         Map map = new Map();
         roomGenerator.createMap(map);
         // generate game objects
+        PrimitivesGenerator primGen = new PrimitivesGenerator(loader);
+
         for (int x = 0; x < map.getWidth(); x++) {
             for (int y = 0; y < map.getHeight(); y++) {
                 Tile tile = map.getTileAt(x, y);
                 if (!tile.isWalkable() && !tile.isTransparent()) {
-                    GameObject gameObject = new GameObject("cube", "wall.png");
-                    gameObject.setScale(new Vector3f(0.5f, 0.5f, 0.5f)); // TODO fix the model
-                    gameObject.setPosition(new Vector3f(y, -1, x));
+                    GameObject gameObject = primGen.generateCube();
+                    gameObject.setPosition(new Vector3f(y, 0, x));
+                    gameObject.setTextureName("wall1.png");
+                    gameObject.getModel().setTextureID(loader.loadTexture("res/" + gameObject.getTextureName()));
+
                     gameObjects.add(gameObject);
                     System.out.print("#");
                 } else {
@@ -85,11 +88,20 @@ public class Engine {
             System.out.print("\n");
         }
 
-        for(GameObject gameObject : gameObjects) {
-            Model model = (new ObjLoader()).load("res/" + gameObject.getModelName(), loader);
-            model.setTextureID(loader.loadTexture("res/" + gameObject.getTextureName()));
-            gameObject.setModel(model);
-        }
+        // Make floor and ceil
+        GameObject floor = primGen.generateNewQuad(32, 32);
+        floor.setPosition(new Vector3f(0, 0, 0));
+        floor.setTextureName("floor1.png");
+        floor.getModel().setTextureID(loader.loadTexture("res/" + floor.getTextureName()));
+
+        GameObject ceil = primGen.generateNewQuad(32, 32);
+        ceil.setPosition(new Vector3f(0, 1, 0));
+        ceil.setTextureName("ceil1.png");
+        ceil.getModel().setTextureID(loader.loadTexture("res/" + ceil.getTextureName()));
+
+        gameObjects.add(floor);
+        gameObjects.add(ceil);
+
         System.out.println("Total " + gameObjects.size() + " game objects created");
     }
     private void input() {

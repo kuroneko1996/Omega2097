@@ -27,6 +27,12 @@ public class GameObject {
     private Vector3f rotation;
     private Vector3f scale;
 
+    public GameObject() {
+        this.position = new Vector3f(0,0,0);
+        this.scale = new Vector3f(1,1,1);
+        this.rotation = new Vector3f(0,0,0);
+    }
+
     public GameObject(String modelName, String textureName, Vector3f position, Vector3f rotation, Vector3f scale) {
         this.modelName = modelName;
         this.textureName = textureName;
