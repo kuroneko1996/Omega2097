@@ -9,12 +9,14 @@ import org.lwjgl.opengl.GL30;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Loader {
     private List<Integer> vaos = new ArrayList<>();
     private List<Integer> vbos = new ArrayList<>();
-    private List<Integer> textures = new ArrayList<>();
+    private Map<String, Integer> textures = new HashMap<>();
 
     public Model loadToVAO(float[] positions, float[] textureCoordinates, int[] indices) {
         int vaoID = createVAO();
@@ -33,6 +35,12 @@ public class Loader {
 
     public int loadTexture(String fileName) {
         int textureID;
+
+        // cached?
+        Integer cachedID = textures.get(fileName);
+        if (cachedID != null) {
+            return cachedID;
+        }
 
         Image image = new Image(fileName);
 
@@ -59,7 +67,7 @@ public class Loader {
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         }
 
-        textures.add(textureID);
+        textures.put(fileName, textureID);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 
         return textureID;
@@ -72,9 +80,7 @@ public class Loader {
         for (int vbo: vbos) {
             GL15.glDeleteBuffers(vbo);
         }
-        for (int texture: textures) {
-            GL11.glDeleteTextures(texture);
-        }
+        textures.forEach((k, textureID) -> GL11.glDeleteTextures(textureID));
     }
 
     private int createVAO() {
