@@ -1,55 +1,16 @@
 package net.omega2097;
 
-import org.lwjgl.util.vector.Vector;
-import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
-import static org.lwjgl.glfw.GLFW.*;
 
 public class Camera {
     private Vector3f position = new Vector3f(0,0,0);
     private float pitch;
     private float yaw;
     private float roll;
+    private boolean updated = false;
 
-    private static final float MOUSE_SENSITIVITY = 0.4f;
+    public static final float MOUSE_SENSITIVITY = 0.4f;
 
-
-    public boolean update(MouseInput mouseInput) {
-        boolean updated = false;
-        float spd = 0.1f;
-        float newAngleY = yaw;
-        float dx = (float) (spd * Math.sin(Math.toRadians(newAngleY)));
-        float dz = (float) (spd * Math.cos(Math.toRadians(newAngleY)));
-
-        if(KeyboardHandler.isKeyDown(GLFW_KEY_W)){
-            position.x += dx;
-            position.z -= dz;
-            updated = true;
-        }
-        if(KeyboardHandler.isKeyDown(GLFW_KEY_S)){
-            position.x -= dx;
-            position.z += dz;
-            updated = true;
-        }
-        if(KeyboardHandler.isKeyDown(GLFW_KEY_A)){
-            position.x -= spd * Math.cos(Math.toRadians(newAngleY));
-            position.z -= spd * Math.sin(Math.toRadians(newAngleY));
-            updated = true;
-        }
-        if(KeyboardHandler.isKeyDown(GLFW_KEY_D)){
-            position.x += spd * Math.cos(Math.toRadians(newAngleY));
-            position.z += spd * Math.sin(Math.toRadians(newAngleY));
-            updated = true;
-        }
-
-
-        Vector2f mouseRotation = mouseInput.getRotation();
-        if (updateRotation(mouseRotation.x * MOUSE_SENSITIVITY, mouseRotation.y * MOUSE_SENSITIVITY, 0f)) {
-            return true;
-        }
-
-        return updated;
-    }
 
     public boolean updateRotation(float offsetX, float offsetY, float offsetZ) {
         pitch = (pitch + offsetY) % 360;
@@ -67,8 +28,8 @@ public class Camera {
         return false;
     }
 
-    public void setPosition(Vector3f position) {
-        this.position = position;
+    public void setPosition(float x, float y, float z) {
+        this.position.set(x, y, z);
     }
 
     public Vector3f getPosition() {
@@ -85,5 +46,13 @@ public class Camera {
 
     public float getRoll() {
         return roll;
+    }
+
+    public boolean isUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(boolean updated) {
+        this.updated = updated;
     }
 }

@@ -2,6 +2,7 @@ package net.omega2097.util;
 
 import net.omega2097.GameObject;
 import net.omega2097.Loader;
+import net.omega2097.Model;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -32,7 +33,7 @@ public class PrimitivesGenerator {
         return gameObject;
     }
 
-    public GameObject generateNewQuad(int width, int height) {
+    public Model generateNewQuad(int width, int height) {
         MeshBuilder builder = new MeshBuilder();
         int texelSizeX = width;
         int texelSizeY = height;
@@ -48,13 +49,10 @@ public class PrimitivesGenerator {
 
         Mesh mesh = builder.createMesh();
 
-        GameObject gameObject = new GameObject();
-        gameObject.setModel(loader.loadToVAO(mesh.getVerticesArray(), mesh.getUvArray(), mesh.getTriangles()));
-        gameObject.setScale(new Vector3f(width, 1, height));
-        return gameObject;
+        return loader.loadToVAO(mesh.getVerticesArray(), mesh.getUvArray(), mesh.getTriangles());
     }
 
-    public GameObject generateCube() {
+    public Model generateCube() {
         MeshBuilder builder = new MeshBuilder();
 
         Vector3f upDir = new Vector3f(0, 1, 0);
@@ -107,10 +105,6 @@ public class PrimitivesGenerator {
                 Vector3f.sub(new Vector3f(0,0,0), upDir, null));
 
         Mesh mesh = builder.createMesh();
-
-        GameObject gameObject = new GameObject();
-        gameObject.setModel(loader.loadToVAO(mesh.getVerticesArray(), mesh.getUvArray(), mesh.getTriangles()));
-        gameObject.setScale(new Vector3f(1, 1, 1));
-        return gameObject;
+        return loader.loadToVAO(mesh.getVerticesArray(), mesh.getUvArray(), mesh.getTriangles());
     }
 }

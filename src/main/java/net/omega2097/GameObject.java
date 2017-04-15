@@ -23,9 +23,9 @@ public class GameObject {
 
     private String modelName;
     private String textureName;
-    private Vector3f position;
-    private Vector3f rotation;
-    private Vector3f scale;
+    protected Vector3f position;
+    protected Vector3f rotation;
+    protected Vector3f scale;
 
     public GameObject() {
         this.position = new Vector3f(0,0,0);
@@ -80,5 +80,16 @@ public class GameObject {
 
     public void setScale(Vector3f scale) {
         this.scale = scale;
+    }
+
+
+    public void update() {
+    }
+    protected Collider collider;
+    public Collider getCollider() {
+        return collider;
+    }
+    public void setCollider(Collider collider) {
+        this.collider = collider;
     }
 }
