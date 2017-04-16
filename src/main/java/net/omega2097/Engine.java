@@ -12,8 +12,7 @@ import org.lwjgl.util.vector.Vector3f;
 import net.omega2097.shaders.StaticShader;
 import net.omega2097.util.Util;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
@@ -39,6 +38,7 @@ public class Engine {
     private Window window;
     private StringBuilder windowTitle = new StringBuilder(64);
     private MouseInput mouseInput;
+    private List<GameObject> billboardObjectsToRender = new ArrayList<>();
 
     private double getTime() {
         return glfwGetTime();
@@ -174,15 +174,37 @@ public class Engine {
         GL11.glClearColor(0,0,0,1);
         GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear frame/depth buffer
 
+        billboardObjectsToRender.clear();
         for(GameObject gameObject: gameObjects) {
             if (gameObject.isBillboard()) {
-                renderer.renderBillBoard(gameObject, billboardShader , viewMatrix);
+                billboardObjectsToRender.add(gameObject);
             } else {
                 renderer.render(gameObject, shader, viewMatrix);
             }
         }
 
+        renderBillboards();
+
         glfwSwapBuffers(window.id);
+    }
+
+    private void renderBillboards() {
+        // sort and render billboards
+        java.util.Map<Float, GameObject> sortedMap = new TreeMap<>(Comparator.reverseOrder());
+
+        Vector3f cameraPosition = camera.getPosition();
+        // calc distance to camera
+        for(GameObject gameObject: billboardObjectsToRender) {
+            Vector3f position = gameObject.getPosition();
+            float distance = (float)Math.sqrt( (cameraPosition.x - position.x) * (cameraPosition.x - position.x)
+                    + (cameraPosition.z - position.z) * (cameraPosition.z - position.z)
+            );
+            sortedMap.put(distance, gameObject);
+        }
+
+        sortedMap.forEach((k, gameObject) -> {
+            renderer.renderBillBoard(gameObject, billboardShader, viewMatrix);
+        });
     }
 
     public void startGameLoop() {
