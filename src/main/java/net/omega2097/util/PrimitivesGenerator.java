@@ -33,7 +33,30 @@ public class PrimitivesGenerator {
         return gameObject;
     }
 
-    public Model generateNewQuad(int width, int height) {
+    public Model generateVerticalQuad(int width, int height) {
+        MeshBuilder builder = new MeshBuilder();
+        int texelSizeX = width;
+        int texelSizeY = height;
+
+        List<Vector2f> texCoordinates = new ArrayList<>();
+        texCoordinates.add(new Vector2f(texelSizeX, texelSizeY));
+        texCoordinates.add(new Vector2f(texelSizeX, 0));
+        texCoordinates.add(new Vector2f(0, 0));
+        texCoordinates.add(new Vector2f(0, texelSizeY));
+
+
+        Vector3f nearCorner = new Vector3f(-0.5f, -0.5f,0f);
+        Vector3f upDir = new Vector3f(0, 1f, 0);
+        Vector3f rightDir = new Vector3f(1f, 0, 0);
+
+        builder.buildQuad(nearCorner, rightDir, upDir, texCoordinates);
+
+        Mesh mesh = builder.createMesh();
+
+        return loader.loadToVAO(mesh.getVerticesArray(), mesh.getUvArray(), mesh.getTriangles());
+    }
+
+    public Model generateHorizontalQuad(int width, int height) {
         MeshBuilder builder = new MeshBuilder();
         int texelSizeX = width;
         int texelSizeY = height;

@@ -4,6 +4,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class GameObject {
     private Model model;
+    private boolean billboard;
 
     public String getModelName() {
         return modelName;
@@ -82,9 +83,19 @@ public class GameObject {
         this.scale = scale;
     }
 
+    public boolean isBillboard() {
+        return billboard;
+    }
+
+    public void setBillboard(boolean billboard) {
+        this.billboard = billboard;
+    }
 
     public void update() {
     }
+
+
+
     protected Collider collider;
     public Collider getCollider() {
         return collider;

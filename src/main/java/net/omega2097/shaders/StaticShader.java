@@ -17,21 +17,21 @@ public class StaticShader extends ShaderProgram {
     }
 
     public void loadTransformationMatrix(Matrix4f matrix) {
-        super.loadMatrix(locationOfTransformationMatrix, matrix);
+        loadMatrix(locationOfTransformationMatrix, matrix);
     }
 
     public void loadProjectionMatrix(Matrix4f matrix) {
-        super.loadMatrix(locationOfProjectionMatrix, matrix);
+        loadMatrix(locationOfProjectionMatrix, matrix);
     }
 
     public void loadViewMatrix(Matrix4f matrix) {
-        super.loadMatrix(locationOfViewMatrix, matrix);
+        loadMatrix(locationOfViewMatrix, matrix);
     }
 
     @Override
     protected void bindAttributes() {
-        super.bindAttribute(0, "position");
-        super.bindAttribute(1, "texcoords");
+        bindAttribute(0, "position");
+        bindAttribute(1, "texcoords");
     }
 
     @Override

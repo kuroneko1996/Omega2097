@@ -1,0 +1,31 @@
+#version 330 core
+
+in vec3 squareVertices;
+in vec2 texcoords;
+
+out vec2 passed_texcoords;
+
+uniform vec3 CameraRight_worldspace;
+uniform vec3 CameraUp_worldspace;
+
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
+
+uniform vec3 BillboardPos; // Position of the center of the billboard
+uniform vec2 BillboardSize; // Size of the billboard, in world units (probably meters)
+
+void main()
+{
+	vec3 particleCenter_wordspace = BillboardPos;
+
+	vec3 vertexPosition_worldspace =
+		particleCenter_wordspace
+		+ CameraRight_worldspace * squareVertices.x * BillboardSize.x
+		+ CameraUp_worldspace * squareVertices.y * BillboardSize.y;
+
+
+	// Output position of the vertex
+	gl_Position = projectionMatrix * viewMatrix * vec4(vertexPosition_worldspace, 1.0f);
+
+	passed_texcoords = texcoords;
+}

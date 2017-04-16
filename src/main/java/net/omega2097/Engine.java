@@ -3,6 +3,7 @@ package net.omega2097;
 import net.omega2097.map.Map;
 import net.omega2097.map.RandomRoomGenerator;
 import net.omega2097.map.Tile;
+import net.omega2097.shaders.BillboardShader;
 import net.omega2097.util.PrimitivesGenerator;
 import net.omega2097.util.Random;
 import org.lwjgl.opengl.GL11;
@@ -24,6 +25,7 @@ public class Engine {
     Loader loader = new Loader();
     MeshRenderer renderer;
     StaticShader shader;
+    BillboardShader billboardShader;
     Player player;
     Camera camera;
     Matrix4f viewMatrix;
@@ -57,7 +59,8 @@ public class Engine {
         lastTime = getTime();
 
         shader = new StaticShader();
-        renderer = new MeshRenderer(aspectRatio, shader);
+        billboardShader = new BillboardShader();
+        renderer = new MeshRenderer(aspectRatio);
 
         camera = new Camera();
 
@@ -101,14 +104,14 @@ public class Engine {
 
         // Make floor and ceil
         GameObject floor = new GameObject();
-        floor.setModel(primGen.generateNewQuad(32, 32));
+        floor.setModel(primGen.generateHorizontalQuad(32, 32));
         floor.setPosition(new Vector3f(0, 0, 0));
         floor.setScale(new Vector3f(32, 1, 32));
         floor.setTextureName("w_floor1.png");
         floor.getModel().setTextureID(loader.loadTexture("res/" + floor.getTextureName()));
 
         GameObject ceil = new GameObject();
-        ceil.setModel(primGen.generateNewQuad(32, 32));
+        ceil.setModel(primGen.generateHorizontalQuad(32, 32));
         ceil.setPosition(new Vector3f(0, 1, 0));
         ceil.setScale(new Vector3f(32, 1, 32));
         ceil.setTextureName("w_ceil1.png");
@@ -117,10 +120,20 @@ public class Engine {
         gameObjects.add(floor);
         gameObjects.add(ceil);
 
+        for (int ek = 0; ek < 3; ek++) {
+            GameObject enemy = new GameObject();
+            enemy.setModel(primGen.generateVerticalQuad(1,1));
+            enemy.setPosition(new Vector3f(3.5f + ek, 0.5f, 10.5f + ek));
+            enemy.setBillboard(true);
+            enemy.setTextureName("w_enemy1.png");
+            enemy.getModel().setTextureID(loader.loadTexture("res/" + enemy.getTextureName()));
+            gameObjects.add(enemy);
+        }
+
         System.out.println("Total " + gameObjects.size() + " game objects created");
 
         Tile startTile = map.getRandomClearTile();
-        System.out.println("Start at " + startTile.getX() + ", " + startTile.getY());
+        System.out.println("Start at " + startTile.getY() + ", " + startTile.getX());
         player.setPosition(new Vector3f(startTile.getY(), 0f, startTile.getX()));
     }
     private void input() {
@@ -157,11 +170,16 @@ public class Engine {
     }
     private void render() {
         GL11.glEnable(GL11.GL_DEPTH_TEST);
+        //GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glClearColor(0,0,0,1);
         GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear frame/depth buffer
 
         for(GameObject gameObject: gameObjects) {
-            renderer.render(gameObject, shader, viewMatrix);
+            if (gameObject.isBillboard()) {
+                renderer.renderBillBoard(gameObject, billboardShader , viewMatrix);
+            } else {
+                renderer.render(gameObject, shader, viewMatrix);
+            }
         }
 
         glfwSwapBuffers(window.id);
