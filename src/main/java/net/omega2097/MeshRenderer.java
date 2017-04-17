@@ -115,7 +115,7 @@ public class MeshRenderer {
     }
 
     private void createGuiProjectionMatrix() {
-        float yScale = (float)((1f / Math.tan(Math.toRadians(FOV / 2f))) * aspectRatio);
+        float yScale = aspectRatio;
         float xScale = yScale / aspectRatio;
 
         guiProjectionMatrix = new Matrix4f();
@@ -124,7 +124,7 @@ public class MeshRenderer {
         guiProjectionMatrix.m22 = 0;
         guiProjectionMatrix.m23 = 1;
         guiProjectionMatrix.m32 = 0;
-        guiProjectionMatrix.m33 = 0;
+        guiProjectionMatrix.m33 = 1;
     }
 
     private void createTransformationMatrix() {

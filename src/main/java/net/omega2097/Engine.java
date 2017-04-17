@@ -140,6 +140,7 @@ public class Engine {
         Tile startTile = map.getRandomClearTile();
         System.out.println("Start at " + startTile.getX() + ", " + startTile.getY());
         player.setPosition(startTile.getX(), 0f, startTile.getY());
+        Util.updateViewMatrix(viewMatrix, camera.getPosition(), camera.getPitch(), camera.getYaw()); // prevent black screen
     }
     private void input() {
         glfwPollEvents();

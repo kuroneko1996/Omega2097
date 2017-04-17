@@ -94,6 +94,5 @@ public class Player extends GameObject {
     }
 
     public void updateGunPosition() {
-        //gun.setPosition(position.x + 0.6f, position.y + 0.5f, position.z + 0.6f);
     }
 }

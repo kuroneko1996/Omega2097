@@ -12,11 +12,7 @@ uniform vec3 vertexPosition_worldspace; // Position of the center of the gui wor
 
 void main()
 {
-    gl_Position = projectionMatrix * viewMatrix * vec4(vertexPosition_worldspace, 1.0f);
-    // perspective calculation
-    gl_Position /= gl_Position.w;
-
     gl_Position.xy = squareVertices.xy;
 
-	passed_texcoords = texcoords;
+    passed_texcoords = texcoords;
 }
