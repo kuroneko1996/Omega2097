@@ -5,6 +5,7 @@ import org.lwjgl.util.vector.Vector3f;
 public class GameObject {
     private Model model;
     private boolean billboard;
+    private boolean gui;
 
     public String getModelName() {
         return modelName;
@@ -89,6 +90,14 @@ public class GameObject {
 
     public void setBillboard(boolean billboard) {
         this.billboard = billboard;
+    }
+
+    public boolean isGui() {
+        return gui;
+    }
+
+    public void setGui(boolean gui) {
+        this.gui = gui;
     }
 
     public void update() {

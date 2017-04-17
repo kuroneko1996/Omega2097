@@ -1,0 +1,22 @@
+#version 330 core
+
+in vec3 squareVertices;
+in vec2 texcoords;
+
+out vec2 passed_texcoords;
+
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
+
+uniform vec3 vertexPosition_worldspace; // Position of the center of the gui worldspace
+
+void main()
+{
+    gl_Position = projectionMatrix * viewMatrix * vec4(vertexPosition_worldspace, 1.0f);
+    // perspective calculation
+    gl_Position /= gl_Position.w;
+
+    gl_Position.xy = squareVertices.xy;
+
+	passed_texcoords = texcoords;
+}

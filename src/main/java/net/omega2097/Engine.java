@@ -4,6 +4,7 @@ import net.omega2097.map.Map;
 import net.omega2097.map.RandomRoomGenerator;
 import net.omega2097.map.Tile;
 import net.omega2097.shaders.BillboardShader;
+import net.omega2097.shaders.GuiShader;
 import net.omega2097.util.PrimitivesGenerator;
 import net.omega2097.util.Random;
 import org.lwjgl.opengl.GL11;
@@ -25,6 +26,7 @@ public class Engine {
     MeshRenderer renderer;
     StaticShader shader;
     BillboardShader billboardShader;
+    GuiShader guiShader;
     Player player;
     Camera camera;
     Matrix4f viewMatrix;
@@ -63,6 +65,7 @@ public class Engine {
 
         shader = new StaticShader();
         billboardShader = new BillboardShader();
+        guiShader = new GuiShader();
         renderer = new MeshRenderer(aspectRatio);
 
         camera = new Camera();
@@ -121,6 +124,16 @@ public class Engine {
 
         addEnemies(map, primGen);
 
+        // add gui
+        GameObject gun = new GameObject();
+        gun.setModel(primGen.generateVerticalQuad(1,1));
+        gun.setGui(true);
+        gun.setTextureName("textures/gui/weapons/pistol.png");
+        gun.getModel().addTextureID(loader.loadTexture("res/" + gun.getTextureName()));
+        gameObjects.add(gun);
+        player.setGun(gun);
+
+
         System.out.println("Total " + gameObjects.size() + " game objects created");
 
         printMap(map);
@@ -173,6 +186,10 @@ public class Engine {
     }
     private void render() {
         GL11.glEnable(GL11.GL_DEPTH_TEST);
+
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
         //GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glClearColor(0,0,0,1);
         GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear frame/depth buffer
@@ -181,12 +198,13 @@ public class Engine {
         for(GameObject gameObject: gameObjects) {
             if (gameObject.isBillboard()) {
                 billboardObjectsToRender.add(gameObject);
-            } else {
+            } else if (!gameObject.isGui()) {
                 renderer.render(gameObject, shader, viewMatrix);
             }
         }
 
         renderBillboards();
+        renderGui();
 
         glfwSwapBuffers(window.id);
     }
@@ -210,6 +228,14 @@ public class Engine {
         });
     }
 
+    private void renderGui() {
+        for(GameObject gameObject: gameObjects) {
+            if (gameObject.isGui()) {
+                renderer.renderGui(gameObject, guiShader, viewMatrix);
+            }
+        }
+    }
+
     private void addEnemies(Map map, PrimitivesGenerator primGen) {
         soldierAnimationCurrentFrame = new HashMap<>();
         List<Integer> soldierWalkAnimationTextures = new ArrayList<>();
@@ -227,6 +253,12 @@ public class Engine {
             for (int ti = 0; ti < (soldierWalkAnimationMaxFrame + 1); ti++) {
                 enemy.getModel().addTextureID(soldierWalkAnimationTextures.get(ti));
             }
+
+            Vector3f bSize = new Vector3f(0.4f, 0.8f, 0.4f);
+            Vector3f bCenter = new Vector3f(enemy.getPosition().x - 0.5f, enemy.getPosition().y,
+                    enemy.getPosition().z - 0.5f);
+            BoundingBox bbox = new BoundingBox(bCenter, bSize);
+            enemy.setCollider(new Collider(bbox));
             gameObjects.add(enemy);
             soldierAnimationCurrentFrame.put(enemy, 0f);
         }

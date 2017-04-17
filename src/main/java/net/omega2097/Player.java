@@ -8,6 +8,7 @@ import static org.lwjgl.glfw.GLFW.*;
 public class Player extends GameObject {
     private MouseInput mouseInput;
     private Camera camera;
+    private GameObject gun;
 
     public Camera getCamera() {
         return camera;
@@ -23,6 +24,14 @@ public class Player extends GameObject {
 
     public void setMouseInput(MouseInput mouseInput) {
         this.mouseInput = mouseInput;
+    }
+
+    public GameObject getGun() {
+        return gun;
+    }
+
+    public void setGun(GameObject gun) {
+        this.gun = gun;
     }
 
     public void update() {
@@ -63,6 +72,8 @@ public class Player extends GameObject {
         updateCameraPosition();
         camera.setUpdated(updated);
 
+        updateGunPosition();
+
         // move collider with player
         collider.setPosition(position.x, position.y, position.z);
     }
@@ -73,10 +84,16 @@ public class Player extends GameObject {
         updateCameraPosition();
         camera.setUpdated(true);
 
+        updateGunPosition();
+
         collider.setPosition(x, y, z);
     }
 
     public void updateCameraPosition() {
         camera.setPosition(position.x + 0.5f, position.y+0.5f, position.z + 0.5f );
+    }
+
+    public void updateGunPosition() {
+        //gun.setPosition(position.x + 0.6f, position.y + 0.5f, position.z + 0.6f);
     }
 }

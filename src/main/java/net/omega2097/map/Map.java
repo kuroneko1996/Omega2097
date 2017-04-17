@@ -80,7 +80,7 @@ public class Map implements IMap {
     public Tile getRandomClearTile() {
         Tile tile = new Tile(0, 0);
         for(int i = 0; i < tiles.length; i++) {
-            if (tiles[i].isWalkable() && tiles[i].isTransparent()) {
+            if (tiles[i].isWalkable() && tiles[i].isTransparent() && !tiles[i].isObject()) {
                 tile = tiles[i];
                 break;
             }

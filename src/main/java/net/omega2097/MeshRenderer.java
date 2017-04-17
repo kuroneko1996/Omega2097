@@ -1,6 +1,7 @@
 package net.omega2097;
 
 import net.omega2097.shaders.BillboardShader;
+import net.omega2097.shaders.GuiShader;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
@@ -19,6 +20,7 @@ public class MeshRenderer {
     private static final float NEAR_PLANE = 0.1f;
     private static final float FAR_PLANE = 1000f;
     private Matrix4f projectionMatrix;
+    private Matrix4f guiProjectionMatrix;
     private Matrix4f transformationMatrix;
     private float aspectRatio;
 
@@ -26,6 +28,7 @@ public class MeshRenderer {
         this.aspectRatio = aspectRatio;
         createProjectionMatrix();
         createTransformationMatrix();
+        createGuiProjectionMatrix();
     }
     public void render(GameObject gameObject, StaticShader shader, Matrix4f viewMatrix) {
         Model model = gameObject.getModel();
@@ -56,6 +59,21 @@ public class MeshRenderer {
         shader.loadProjectionMatrix(projectionMatrix);
         shader.loadCameraVectors(cameraRight, cameraUp);
         shader.loadBillboard(billboardCenter, billboardSize);
+
+        glRenderAndCleanUp(model);
+
+        shader.stop();
+    }
+
+    public void renderGui(GameObject gameObject, GuiShader shader, Matrix4f viewMatrix) {
+        Model model = gameObject.getModel();
+        Vector3f guiCenter = new Vector3f(gameObject.getPosition());
+
+        shader.start();
+        // load uniforms
+        shader.loadViewMatrix(viewMatrix);
+        shader.loadProjectionMatrix(guiProjectionMatrix);
+        shader.loadGuiCenter(guiCenter);
 
         glRenderAndCleanUp(model);
 
@@ -94,6 +112,19 @@ public class MeshRenderer {
         projectionMatrix.m23 = -1;
         projectionMatrix.m32 = -((2 * NEAR_PLANE * FAR_PLANE) / frustumLength);
         projectionMatrix.m33 = 0;
+    }
+
+    private void createGuiProjectionMatrix() {
+        float yScale = (float)((1f / Math.tan(Math.toRadians(FOV / 2f))) * aspectRatio);
+        float xScale = yScale / aspectRatio;
+
+        guiProjectionMatrix = new Matrix4f();
+        guiProjectionMatrix.m00 = xScale;
+        guiProjectionMatrix.m11 = yScale;
+        guiProjectionMatrix.m22 = 0;
+        guiProjectionMatrix.m23 = 1;
+        guiProjectionMatrix.m32 = 0;
+        guiProjectionMatrix.m33 = 0;
     }
 
     private void createTransformationMatrix() {
