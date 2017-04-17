@@ -68,12 +68,12 @@ public class Player extends GameObject {
     }
 
     @Override
-    public void setPosition(Vector3f newPos) {
-        super.setPosition(newPos);
+    public void setPosition(float x, float y, float z) {
+        super.setPosition(x, y, z);
         updateCameraPosition();
         camera.setUpdated(true);
 
-        collider.setPosition(newPos.x, newPos.y, newPos.z);
+        collider.setPosition(x, y, z);
     }
 
     public void updateCameraPosition() {

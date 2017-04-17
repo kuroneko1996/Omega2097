@@ -49,6 +49,7 @@ public class RandomRoomGenerator<T extends IMap> {
         }
 
         for (int r = 0; r < rooms.size(); r++) {
+            map.placeObjects(rooms.get(r), r);
             if (r == 0) {
                 continue;
             }

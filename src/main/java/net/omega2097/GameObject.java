@@ -63,8 +63,8 @@ public class GameObject {
         return position;
     }
 
-    public void setPosition(Vector3f position) {
-        this.position = position;
+    public void setPosition(float x, float y, float z) {
+        this.position.set(x, y, z);
     }
 
     public Vector3f getRotation() {

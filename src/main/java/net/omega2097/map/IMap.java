@@ -6,4 +6,5 @@ public interface IMap {
 
    public void init(int width, int height);
    public void setProperties(int x, int y, boolean isTransparent, boolean isWalkable);
+   public void placeObjects(Rectangle room, int roomNumber);
 }

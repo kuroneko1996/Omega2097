@@ -3,6 +3,7 @@ package net.omega2097.map;
 public class Tile {
     private boolean walkable = false;
     private boolean transparent = false;
+    private boolean object = false;
     private int x;
     private int y;
 
@@ -41,5 +42,13 @@ public class Tile {
 
     public void setTransparent(boolean transparent) {
         this.transparent = transparent;
+    }
+
+    public boolean isObject() {
+        return object;
+    }
+
+    public void setObject(boolean object) {
+        this.object = object;
     }
 }

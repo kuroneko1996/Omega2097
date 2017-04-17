@@ -29,6 +29,9 @@ public class Engine {
     Camera camera;
     Matrix4f viewMatrix;
 
+    private int soldierWalkAnimationMaxFrame = 4;
+    private HashMap<GameObject, Float> soldierAnimationCurrentFrame;
+
 
     List<GameObject> gameObjects = new ArrayList<>();
 
@@ -77,7 +80,7 @@ public class Engine {
         Random random = new Random(998);
         RandomRoomGenerator<Map> roomGenerator = new RandomRoomGenerator<>(32,32, 10, 6,
                 9, random);
-        Map map = new Map();
+        Map map = new Map(random);
         roomGenerator.createMap(map);
         // generate game objects
         for (int x = 0; x < map.getWidth(); x++) {
@@ -86,55 +89,44 @@ public class Engine {
                 if (!tile.isWalkable() && !tile.isTransparent()) {
                     GameObject gameObject = new GameObject();
                     gameObject.setModel(primGen.generateCube());
-                    gameObject.setPosition(new Vector3f(y, 0, x));
+                    gameObject.setPosition(x, 0, y);
                     gameObject.setTextureName("w_wall1.png");
-                    gameObject.getModel().setTextureID(loader.loadTexture("res/" + gameObject.getTextureName()));
+                    gameObject.getModel().addTextureID(loader.loadTexture("res/" + gameObject.getTextureName()));
 
                     BoundingBox bbox = new BoundingBox(new Vector3f(gameObject.getPosition()), new Vector3f(1,1,1));
                     gameObject.setCollider(new Collider(bbox));
 
                     gameObjects.add(gameObject);
-                    System.out.print("#");
-                } else {
-                    System.out.print(" ");
                 }
             }
-            System.out.print("\n");
         }
 
         // Make floor and ceil
         GameObject floor = new GameObject();
         floor.setModel(primGen.generateHorizontalQuad(32, 32));
-        floor.setPosition(new Vector3f(0, 0, 0));
+        floor.setPosition(0,0,0);
         floor.setScale(new Vector3f(32, 1, 32));
         floor.setTextureName("w_floor1.png");
-        floor.getModel().setTextureID(loader.loadTexture("res/" + floor.getTextureName()));
+        floor.getModel().addTextureID(loader.loadTexture("res/" + floor.getTextureName()));
 
         GameObject ceil = new GameObject();
         ceil.setModel(primGen.generateHorizontalQuad(32, 32));
-        ceil.setPosition(new Vector3f(0, 1, 0));
+        ceil.setPosition(0, 1,0);
         ceil.setScale(new Vector3f(32, 1, 32));
         ceil.setTextureName("w_ceil1.png");
-        ceil.getModel().setTextureID(loader.loadTexture("res/" + ceil.getTextureName()));
+        ceil.getModel().addTextureID(loader.loadTexture("res/" + ceil.getTextureName()));
 
         gameObjects.add(floor);
         gameObjects.add(ceil);
 
-        for (int ek = 0; ek < 3; ek++) {
-            GameObject enemy = new GameObject();
-            enemy.setModel(primGen.generateVerticalQuad(1,1));
-            enemy.setPosition(new Vector3f(3.5f + ek, 0.5f, 10.5f + ek));
-            enemy.setBillboard(true);
-            enemy.setTextureName("w_enemy1.png");
-            enemy.getModel().setTextureID(loader.loadTexture("res/" + enemy.getTextureName()));
-            gameObjects.add(enemy);
-        }
+        addEnemies(map, primGen);
 
         System.out.println("Total " + gameObjects.size() + " game objects created");
 
+        printMap(map);
         Tile startTile = map.getRandomClearTile();
-        System.out.println("Start at " + startTile.getY() + ", " + startTile.getX());
-        player.setPosition(new Vector3f(startTile.getY(), 0f, startTile.getX()));
+        System.out.println("Start at " + startTile.getX() + ", " + startTile.getY());
+        player.setPosition(startTile.getX(), 0f, startTile.getY());
     }
     private void input() {
         glfwPollEvents();
@@ -156,12 +148,23 @@ public class Engine {
             Vector3f shiftVector = collider.checkRectanglesOverlap(player.getCollider());
             if (shiftVector != null) {
                 Vector3f newPosition = Vector3f.add(player.getPosition(), shiftVector, null);
-                player.setPosition(newPosition);
+                player.setPosition(newPosition.x, newPosition.y, newPosition.z);
             }
         }
 
         for(GameObject gameObject : gameObjects) {
             gameObject.update();
+
+            // update animations
+            Float frame = soldierAnimationCurrentFrame.get(gameObject);
+            if (frame != null) {
+                frame = frame + 0.05f;
+                if (frame > soldierWalkAnimationMaxFrame) {
+                    frame = 0f;
+                }
+                soldierAnimationCurrentFrame.put(gameObject, frame);
+                gameObject.getModel().setCurrentTexture((int)frame.floatValue());
+            }
         }
 
         if (camera.isUpdated()) {
@@ -205,6 +208,44 @@ public class Engine {
         sortedMap.forEach((k, gameObject) -> {
             renderer.renderBillBoard(gameObject, billboardShader, viewMatrix);
         });
+    }
+
+    private void addEnemies(Map map, PrimitivesGenerator primGen) {
+        soldierAnimationCurrentFrame = new HashMap<>();
+        List<Integer> soldierWalkAnimationTextures = new ArrayList<>();
+
+        for (int ti = 0; ti < (soldierWalkAnimationMaxFrame + 1); ti++) {
+            soldierWalkAnimationTextures.add(loader.loadTexture("res/" + "textures/soldier/" + "walk_" + ti + ".png" ));
+        }
+
+        for (int i = 0; i < map.getEnemies().size(); i++) {
+            GameObject enemy = map.getEnemies().get(i);
+            enemy.setModel(primGen.generateVerticalQuad(1,1));
+            enemy.setBillboard(true);
+            enemy.setTextureName("textures/soldier/walk_0.png");
+
+            for (int ti = 0; ti < (soldierWalkAnimationMaxFrame + 1); ti++) {
+                enemy.getModel().addTextureID(soldierWalkAnimationTextures.get(ti));
+            }
+            gameObjects.add(enemy);
+            soldierAnimationCurrentFrame.put(enemy, 0f);
+        }
+    }
+
+    private void printMap(Map map) {
+        for (int x = 0; x < map.getWidth(); x++) {
+            for (int y = 0; y < map.getHeight(); y++) {
+                Tile tile = map.getTileAt(x, y);
+                if (tile.isObject()) {
+                    System.out.print("o");
+                } else if (!tile.isWalkable()) {
+                    System.out.print("#");
+                } else {
+                    System.out.print(" ");
+                }
+            }
+            System.out.print("\n");
+        }
     }
 
     public void startGameLoop() {
