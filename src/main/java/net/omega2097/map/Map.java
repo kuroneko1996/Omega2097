@@ -54,7 +54,7 @@ public class Map implements IMap {
             Tile tile = getTileAt(x, y);
             if (tile.isWalkable() && !tile.isObject()) {
                 GameObject gameObject = new GameObject();
-                gameObject.setPosition(x + 0.5f, 0.5f, y + 0.5f);
+                gameObject.setPosition(x, 0.5f, y);
                 enemies.add(gameObject);
                 tile.setObject(true);
                 number--;

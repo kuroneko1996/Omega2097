@@ -47,9 +47,9 @@ public class Actor extends GameObject {
 
     void updateColliderPosition() {
         BoundingBox bbox = collider.getBox();
-        float centerX = position.x - bbox.getSize().x / 2.0f;
-        float centerY = position.y + bbox.getSize().y / 2.0f;
-        float centerZ = position.z - bbox.getSize().z / 2.0f;
-        collider.setPosition(centerX, centerY, centerZ);
+        float x = position.x - bbox.getSize().x / 2.0f;
+        float y = position.y - bbox.getSize().y / 2.0f;
+        float z = position.z - bbox.getSize().z / 2.0f;
+        collider.setPosition(x, y, z);
     }
 }

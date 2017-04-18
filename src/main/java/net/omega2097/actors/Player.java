@@ -77,7 +77,7 @@ public class Player extends Actor {
             shooter.shoot(gameObjects);
         }
         if (KeyboardHandler.isKeyDown(GLFW_KEY_X)) {
-            System.out.println("pos: " + position + ", dir: " + getDirection());
+            System.out.println("pos: " + position + ", dir: " + getDirection() + ", bbox: " + getCollider().getBox().getPosition() + ", cam: " + camera.getPosition());
         }
 
         Vector2f mouseRotation = mouseInput.getRotation();

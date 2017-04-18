@@ -15,23 +15,6 @@ public class PrimitivesGenerator {
     public PrimitivesGenerator(Loader loader) {
         this.loader = loader;
     }
-    public GameObject generateQuad(int width, int height) {
-        float[] positions = {
-                -0.5f, 0f,  0.5f,   0.5f, 0f,  0.5f,
-                -0.5f, 0f, -0.5f,   0.5f, 0f, -0.5f
-        };
-        int[] indices = { 1, 2, 0,  1, 3, 2 };
-
-        float[] textureCoordinates = {
-                0, 0,               1 * width,0,
-                0, 1 * height,      1 * width,1 * height
-        };
-
-        GameObject gameObject = new GameObject();
-        gameObject.setModel(loader.loadToVAO(positions, textureCoordinates, indices));
-        gameObject.setScale(new Vector3f(width, 1, height));
-        return gameObject;
-    }
 
     public Model generateVerticalQuad(int width, int height) {
         MeshBuilder builder = new MeshBuilder();
@@ -82,10 +65,9 @@ public class PrimitivesGenerator {
         Vector3f rightDir = new Vector3f(width, 0, 0);
         Vector3f forwardDir = new Vector3f(0, 0, depth);
 
-        Vector3f nearCorner = new Vector3f(0,0,0);
-        Vector3f farCorner = new Vector3f();
-        Vector3f.add(upDir, rightDir, farCorner);
-        Vector3f.add(farCorner, forwardDir, farCorner);
+        Vector3f nearCorner = new Vector3f(-width / 2.0f,-height / 2.0f,-depth / 2.0f);
+        Vector3f farCorner = new Vector3f(width / 2.0f, height / 2.0f, depth / 2.0f);
+
 
         // uv coordinates holder
         List<Vector2f> texCoordinates = new ArrayList<>();

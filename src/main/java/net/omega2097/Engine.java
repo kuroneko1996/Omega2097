@@ -90,43 +90,9 @@ public class Engine {
                 9, random);
         map = new Map(random);
         roomGenerator.createMap(map);
-        // generate game objects
-        for (int x = 0; x < map.getWidth(); x++) {
-            for (int y = 0; y < map.getHeight(); y++) {
-                Tile tile = map.getTileAt(x, y);
-                if (!tile.isWalkable() && !tile.isTransparent()) {
-                    GameObject gameObject = new GameObject();
-                    gameObject.setModel(primGen.generateCube(1));
-                    gameObject.setPosition(x, 0, y);
-                    gameObject.setTextureName("w_wall1.png");
-                    gameObject.getModel().addTextureID(loader.loadTexture("res/" + gameObject.getTextureName()));
 
-                    BoundingBox bbox = new BoundingBox(new Vector3f(gameObject.getPosition()), new Vector3f(1,1,1));
-                    gameObject.setCollider(new Collider(bbox));
-
-                    gameObjects.add(gameObject);
-                }
-            }
-        }
-
-        // Make floor and ceil
-        GameObject floor = new GameObject();
-        floor.setModel(primGen.generateHorizontalQuad(32, 32));
-        floor.setPosition(0,0,0);
-        floor.setScale(new Vector3f(32, 1, 32));
-        floor.setTextureName("w_floor1.png");
-        floor.getModel().addTextureID(loader.loadTexture("res/" + floor.getTextureName()));
-
-        GameObject ceil = new GameObject();
-        ceil.setModel(primGen.generateHorizontalQuad(32, 32));
-        ceil.setPosition(0, 1,0);
-        ceil.setScale(new Vector3f(32, 1, 32));
-        ceil.setTextureName("w_ceil1.png");
-        ceil.getModel().addTextureID(loader.loadTexture("res/" + ceil.getTextureName()));
-
-        gameObjects.add(floor);
-        gameObjects.add(ceil);
-
+        addFloorAndCeil();
+        addWalls();
         addEnemies(map, primGen);
         addPlayer();
         System.out.println("Total " + gameObjects.size() + " game objects created");
@@ -231,12 +197,56 @@ public class Engine {
         }
     }
 
+    private void addWalls() {
+        // generate game objects
+        for (int x = 0; x < map.getWidth(); x++) {
+            for (int y = 0; y < map.getHeight(); y++) {
+                Tile tile = map.getTileAt(x, y);
+                if (!tile.isWalkable() && !tile.isTransparent()) {
+                    GameObject gameObject = new GameObject();
+                    gameObject.setModel(primGen.generateCube(1));
+                    gameObject.setPosition(x, 0.5f, y);
+                    gameObject.setTextureName("w_wall1.png");
+                    gameObject.getModel().addTextureID(loader.loadTexture("res/" + gameObject.getTextureName()));
+
+                    Vector3f bboxSize = new Vector3f(1,1,1);
+                    Vector3f bboxCoord = new Vector3f(gameObject.getPosition().x - 0.5f,
+                            gameObject.getPosition().y - 0.5f,gameObject.getPosition().z - 0.5f);
+                    BoundingBox bbox = new BoundingBox(bboxCoord, bboxSize);
+                    gameObject.setCollider(new Collider(bbox));
+
+                    gameObjects.add(gameObject);
+                }
+            }
+        }
+    }
+
+    private void addFloorAndCeil() {
+        // Make floor and ceil
+        GameObject floor = new GameObject();
+        floor.setModel(primGen.generateHorizontalQuad(32, 32));
+        floor.setPosition(0,0,0);
+        floor.setScale(new Vector3f(32, 1, 32));
+        floor.setTextureName("w_floor1.png");
+        floor.getModel().addTextureID(loader.loadTexture("res/" + floor.getTextureName()));
+
+        GameObject ceil = new GameObject();
+        ceil.setModel(primGen.generateHorizontalQuad(32, 32));
+        ceil.setPosition(0, 1,0);
+        ceil.setScale(new Vector3f(32, 1, 32));
+        ceil.setTextureName("w_ceil1.png");
+        ceil.getModel().addTextureID(loader.loadTexture("res/" + ceil.getTextureName()));
+
+        gameObjects.add(floor);
+        gameObjects.add(ceil);
+    }
+
     private void addPlayer() {
         player = new Player();
         player.setMouseInput(mouseInput);
-        Vector3f bboxSize = new Vector3f(0.5f,0.7f,0.5f);
-        Vector3f bboxCenter = new Vector3f(-0.25f, 0.35f, -0.25f);
-        BoundingBox pbox = new BoundingBox(bboxCenter, bboxSize);
+        Vector3f bboxSize = new Vector3f(0.6f,0.8f,0.6f);
+        Vector3f bboxCoord = new Vector3f(-0.5f, -0.5f, -0.5f);
+        BoundingBox pbox = new BoundingBox(bboxCoord, bboxSize);
         player.setCollider(new Collider(pbox));
         player.setCamera(camera);
 
