@@ -50,4 +50,12 @@ public class Collider {
     public void setPosition(float x, float y, float z) {
         box.getPosition().set(x, y, z);
     }
+
+    public BoundingBox getBox() {
+        return box;
+    }
+
+    public void setBox(BoundingBox box) {
+        this.box = box;
+    }
 }

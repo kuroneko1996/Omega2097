@@ -2,10 +2,13 @@ package net.omega2097;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import java.util.List;
+
 public class GameObject {
     private Model model;
     private boolean billboard;
     private boolean gui;
+    private boolean destroyed = false;
 
     public String getModelName() {
         return modelName;
@@ -26,8 +29,8 @@ public class GameObject {
     private String modelName;
     private String textureName;
     protected Vector3f position;
-    protected Vector3f rotation;
-    protected Vector3f scale;
+    protected Vector3f rotation = new Vector3f(0,0,0);
+    protected Vector3f scale = new Vector3f(1,1,1);
 
     public GameObject() {
         this.position = new Vector3f(0,0,0);
@@ -76,6 +79,10 @@ public class GameObject {
         this.rotation = rotation;
     }
 
+    public void setRotation(float x, float y, float z) {
+        this.rotation.set(x, y, z);
+    }
+
     public Vector3f getScale() {
         return scale;
     }
@@ -100,10 +107,17 @@ public class GameObject {
         this.gui = gui;
     }
 
-    public void update() {
+    public void update(List<GameObject> gameObjects) {
+        if (isDestroyed()) throw new RuntimeException("Can't update object because its destroyed!");
     }
 
+    public void destroy() {
+        destroyed = true;
+    }
 
+    public boolean isDestroyed() {
+        return destroyed;
+    }
 
     protected Collider collider;
     public Collider getCollider() {

@@ -75,12 +75,12 @@ public class PrimitivesGenerator {
         return loader.loadToVAO(mesh.getVerticesArray(), mesh.getUvArray(), mesh.getTriangles());
     }
 
-    public Model generateCube() {
+    public Model generateBox(float width, float height, float depth) {
         MeshBuilder builder = new MeshBuilder();
 
-        Vector3f upDir = new Vector3f(0, 1, 0);
-        Vector3f rightDir = new Vector3f(1, 0, 0);
-        Vector3f forwardDir = new Vector3f(0, 0, 1);
+        Vector3f upDir = new Vector3f(0, height, 0);
+        Vector3f rightDir = new Vector3f(width, 0, 0);
+        Vector3f forwardDir = new Vector3f(0, 0, depth);
 
         Vector3f nearCorner = new Vector3f(0,0,0);
         Vector3f farCorner = new Vector3f();
@@ -129,5 +129,9 @@ public class PrimitivesGenerator {
 
         Mesh mesh = builder.createMesh();
         return loader.loadToVAO(mesh.getVerticesArray(), mesh.getUvArray(), mesh.getTriangles());
+    }
+
+    public Model generateCube(float size) {
+        return generateBox(size, size, size);
     }
 }

@@ -1,19 +1,26 @@
-package net.omega2097;
+package net.omega2097.actors;
 
+import net.omega2097.*;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
+import java.util.List;
+
 import static org.lwjgl.glfw.GLFW.*;
 
-public class Player extends GameObject {
+public class Player extends Actor {
     private MouseInput mouseInput;
     private Camera camera;
     private GameObject gun;
 
+    public Player() {
+        super();
+        this.shooter = new Shooter(this);
+    }
+
     public Camera getCamera() {
         return camera;
     }
-
     public void setCamera(Camera camera) {
         this.camera = camera;
     }
@@ -34,7 +41,10 @@ public class Player extends GameObject {
         this.gun = gun;
     }
 
-    public void update() {
+    @Override
+    public void update(List<GameObject> gameObjects) {
+        super.update(gameObjects);
+
         boolean updated = false;
         camera.setUpdated(false);
 
@@ -63,19 +73,21 @@ public class Player extends GameObject {
             position.z += spd * Math.sin(Math.toRadians(newAngleY));
             updated = true;
         }
+        if (KeyboardHandler.isKeyDown(GLFW_KEY_Z)) {
+            shooter.shoot(gameObjects);
+        }
+        if (KeyboardHandler.isKeyDown(GLFW_KEY_X)) {
+            System.out.println("pos: " + position + ", dir: " + getDirection());
+        }
 
         Vector2f mouseRotation = mouseInput.getRotation();
-        if (camera.updateRotation(mouseRotation.x * Camera.MOUSE_SENSITIVITY, mouseRotation.y * Camera.MOUSE_SENSITIVITY, 0f)) {
+        if (camera.updateRotation( mouseRotation.y * Camera.MOUSE_SENSITIVITY, mouseRotation.x * Camera.MOUSE_SENSITIVITY, 0f)) {
             updated = true;
         }
 
         updateCameraPosition();
         camera.setUpdated(updated);
-
-        updateGunPosition();
-
-        // move collider with player
-        collider.setPosition(position.x, position.y, position.z);
+        updateColliderPosition();
     }
 
     @Override
@@ -83,16 +95,22 @@ public class Player extends GameObject {
         super.setPosition(x, y, z);
         updateCameraPosition();
         camera.setUpdated(true);
-
-        updateGunPosition();
-
-        collider.setPosition(x, y, z);
     }
 
-    public void updateCameraPosition() {
-        camera.setPosition(position.x + 0.5f, position.y+0.5f, position.z + 0.5f );
+    @Override
+    public Vector3f getDirection() {
+        Vector3f cameraRot = camera.getRotation();
+        float rotY = 180 - cameraRot.y;
+        if (rotY > 360) {
+            rotY = rotY - 360;
+        }
+        float rotX = 0;
+        float rotZ = 0;
+
+        return new Vector3f(rotX, rotY, rotZ);
     }
 
-    public void updateGunPosition() {
+    private void updateCameraPosition() {
+        camera.setPosition(position.x, position.y, position.z );
     }
 }

@@ -1,5 +1,6 @@
 package net.omega2097;
 
+import net.omega2097.actors.Player;
 import net.omega2097.map.Map;
 import net.omega2097.map.RandomRoomGenerator;
 import net.omega2097.map.Tile;
@@ -20,22 +21,25 @@ import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 
 public class Engine {
-    public boolean running = false;
+    private static Engine instance;
 
-    Loader loader = new Loader();
-    MeshRenderer renderer;
-    StaticShader shader;
-    BillboardShader billboardShader;
-    GuiShader guiShader;
-    Player player;
-    Camera camera;
-    Matrix4f viewMatrix;
+    private Loader loader = new Loader();
+    private MeshRenderer renderer;
+    private StaticShader shader;
+    private BillboardShader billboardShader;
+    private GuiShader guiShader;
+    private Player player;
+    private Camera camera;
+    private Matrix4f viewMatrix;
+    private Map map;
+    private PrimitivesGenerator primGen;
+    private List<GameObject> toRemove = new ArrayList<>();
 
     private int soldierWalkAnimationMaxFrame = 4;
     private HashMap<GameObject, Float> soldierAnimationCurrentFrame;
 
 
-    List<GameObject> gameObjects = new ArrayList<>();
+    private List<GameObject> gameObjects = new ArrayList<>();
 
     private double lastLoopTime;
     private double lastTime;
@@ -44,6 +48,15 @@ public class Engine {
     private StringBuilder windowTitle = new StringBuilder(64);
     private MouseInput mouseInput;
     private List<GameObject> billboardObjectsToRender = new ArrayList<>();
+
+
+    private Engine() {}
+    public static Engine getInstance() {
+        if (instance == null) {
+            instance = new Engine();
+        }
+        return instance;
+    }
 
     private double getTime() {
         return glfwGetTime();
@@ -67,23 +80,15 @@ public class Engine {
         billboardShader = new BillboardShader();
         guiShader = new GuiShader();
         renderer = new MeshRenderer(aspectRatio);
-
         camera = new Camera();
-
-        PrimitivesGenerator primGen = new PrimitivesGenerator(loader);
-
-        player = new Player();
-        player.setMouseInput(mouseInput);
-        BoundingBox pbox = new BoundingBox(new Vector3f(0,0,0), new Vector3f(0.5f,0.7f,0.5f));
-        player.setCollider(new Collider(pbox));
-        player.setCamera(camera);
+        primGen = new PrimitivesGenerator(loader);
 
         viewMatrix = Util.createViewMatrix(camera);
 
         Random random = new Random(998);
         RandomRoomGenerator<Map> roomGenerator = new RandomRoomGenerator<>(32,32, 10, 6,
                 9, random);
-        Map map = new Map(random);
+        map = new Map(random);
         roomGenerator.createMap(map);
         // generate game objects
         for (int x = 0; x < map.getWidth(); x++) {
@@ -91,7 +96,7 @@ public class Engine {
                 Tile tile = map.getTileAt(x, y);
                 if (!tile.isWalkable() && !tile.isTransparent()) {
                     GameObject gameObject = new GameObject();
-                    gameObject.setModel(primGen.generateCube());
+                    gameObject.setModel(primGen.generateCube(1));
                     gameObject.setPosition(x, 0, y);
                     gameObject.setTextureName("w_wall1.png");
                     gameObject.getModel().addTextureID(loader.loadTexture("res/" + gameObject.getTextureName()));
@@ -123,35 +128,24 @@ public class Engine {
         gameObjects.add(ceil);
 
         addEnemies(map, primGen);
-
-        // add gui
-        GameObject gun = new GameObject();
-        gun.setModel(primGen.generateVerticalQuad(1,1));
-        gun.setGui(true);
-        gun.setTextureName("textures/gui/weapons/pistol.png");
-        gun.getModel().addTextureID(loader.loadTexture("res/" + gun.getTextureName()));
-        gameObjects.add(gun);
-        player.setGun(gun);
-
-
+        addPlayer();
         System.out.println("Total " + gameObjects.size() + " game objects created");
-
         printMap(map);
-        Tile startTile = map.getRandomClearTile();
-        System.out.println("Start at " + startTile.getX() + ", " + startTile.getY());
-        player.setPosition(startTile.getX(), 0f, startTile.getY());
+
         Util.updateViewMatrix(viewMatrix, camera.getPosition(), camera.getPitch(), camera.getYaw()); // prevent black screen
     }
     private void input() {
         glfwPollEvents();
     }
     private void update(float delta) {
+        removeDestroyedObjects();
+
         mouseInput.update();
         if (window.isMouseLocked()) {
             glfwSetCursorPos(window.id, window.width / 2.0f, window.height / 2.0f);
         }
 
-        player.update();
+        player.update(gameObjects);
 
         for(GameObject gameObject : gameObjects) {
             Collider collider = gameObject.getCollider();
@@ -167,7 +161,7 @@ public class Engine {
         }
 
         for(GameObject gameObject : gameObjects) {
-            gameObject.update();
+            gameObject.update(gameObjects);
 
             // update animations
             Float frame = soldierAnimationCurrentFrame.get(gameObject);
@@ -237,6 +231,28 @@ public class Engine {
         }
     }
 
+    private void addPlayer() {
+        player = new Player();
+        player.setMouseInput(mouseInput);
+        Vector3f bboxSize = new Vector3f(0.5f,0.7f,0.5f);
+        Vector3f bboxCenter = new Vector3f(-0.25f, 0.35f, -0.25f);
+        BoundingBox pbox = new BoundingBox(bboxCenter, bboxSize);
+        player.setCollider(new Collider(pbox));
+        player.setCamera(camera);
+
+        Tile startTile = map.getRandomClearTile();
+        System.out.println("Start at " + startTile.getX() + ", " + startTile.getY());
+        player.setPosition(startTile.getX() + 0.5f, 0.5f, startTile.getY() + 0.5f);
+
+        GameObject gun = new GameObject();
+        gun.setModel(primGen.generateVerticalQuad(1,1));
+        gun.setGui(true);
+        gun.setTextureName("textures/gui/weapons/pistol.png");
+        gun.getModel().addTextureID(loader.loadTexture("res/" + gun.getTextureName()));
+        gameObjects.add(gun);
+        player.setGun(gun);
+    }
+
     private void addEnemies(Map map, PrimitivesGenerator primGen) {
         soldierAnimationCurrentFrame = new HashMap<>();
         List<Integer> soldierWalkAnimationTextures = new ArrayList<>();
@@ -281,6 +297,16 @@ public class Engine {
         }
     }
 
+    private void removeDestroyedObjects() {
+        for(GameObject gameObject : gameObjects) {
+            if (gameObject.isDestroyed()) {
+                toRemove.add(gameObject);
+            }
+        }
+        gameObjects.removeAll(toRemove);
+        toRemove.clear();
+    }
+
     public void startGameLoop() {
         //long targetTime = 1000 / 60; // 60 fps
 
@@ -305,5 +331,17 @@ public class Engine {
 
         shader.cleanUp();
         loader.cleanUp();
+    }
+
+    public List<GameObject> getGameObjects() {
+        return gameObjects;
+    }
+
+    public Loader getLoader() {
+        return loader;
+    }
+
+    public PrimitivesGenerator getPrimGen() {
+        return primGen;
     }
 }

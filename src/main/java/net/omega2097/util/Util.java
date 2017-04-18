@@ -40,4 +40,80 @@ public class Util {
         Vector3f negativeCameraPos = new Vector3f(-cameraPos.x, -cameraPos.y, -cameraPos.z);
         viewMatrix.translate(negativeCameraPos);
     }
+
+    /**
+     * Outputs a hit coordinate to the last param - hitCoord
+     * @param rayOrigin
+     * @param rayDir
+     * @param bboxMin
+     * @param bboxMax
+     */
+    public static Vector3f hitBoundingBox(Vector3f rayOrigin, Vector3f rayDir, Vector3f bboxMin, Vector3f bboxMax) {
+        final byte RIGHT = 0;
+        final byte LEFT = 1;
+        final byte MIDDLE = 2;
+
+        boolean inside = true;
+        byte numDim = 3;
+        byte quadrants[] = new byte[numDim];
+        byte whichPlane;
+        double tMax[] = new double[numDim];
+        double candidatePlanes[] = new double[numDim];
+        double coord[] = new double[numDim];
+
+        double origin[] = {rayOrigin.x, rayOrigin.y, rayOrigin.z};
+        double dir[] = {rayDir.x, rayDir.y, rayDir.z};
+        double bMin[] = {bboxMin.x, bboxMin.y, bboxMin.z};
+        double bMax[] = {bboxMax.x, bboxMax.y, bboxMax.z};
+
+        // Find candidate planes
+        for (byte i = 0; i < numDim; i++) {
+            if (origin[i] < bMin[i]) {
+                quadrants[i] = LEFT;
+                candidatePlanes[i] = bMin[i];
+                inside = false;
+            } else if (origin[i] > bMax[i]) {
+                quadrants[i] = RIGHT;
+                candidatePlanes[i] = bMax[i];
+                inside = false;
+            } else {
+                quadrants[i] = MIDDLE;
+            }
+        }
+
+        // Ray origin inside bounding box
+        if (inside) {
+            coord = origin;
+            return new Vector3f((float)coord[0], (float)coord[1], (float)coord[2]);
+        }
+
+        // Calculate t distances to candidate planes
+        for (byte i = 0; i < numDim; i++) {
+            if (quadrants[i] != MIDDLE && dir[i] != 0)
+                tMax[i] = (candidatePlanes[i] - origin[i]) / dir[i];
+            else
+                tMax[i] = -1;
+        }
+
+        // Get largest of tMaxes
+        whichPlane = 0;
+        for (byte i = 0; i < numDim; i++) {
+            if (tMax[whichPlane] < tMax[i]) {
+                whichPlane = i;
+            }
+        }
+        // check if final candidate is inside box
+        if (tMax[whichPlane] < 0) return null;
+        for (byte i = 0; i < numDim; i++) {
+            if (whichPlane != i) {
+                coord[i] = origin[i] + tMax[whichPlane] * dir[i]; // line equation
+                if (coord[i] < bMin[i] || coord[i] > bMax[i]) // out of bounding box
+                    return null;
+            } else {
+                coord[i] = candidatePlanes[i];
+            }
+        }
+
+        return new Vector3f((float)coord[0], (float)coord[1], (float)coord[2]);
+    }
 }

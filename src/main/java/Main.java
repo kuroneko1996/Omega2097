@@ -60,7 +60,7 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("Game Started");
-        Engine engine = new Engine();
+        Engine engine = Engine.getInstance();
         new Main().run(engine);
         System.out.println("Game Quit");
     }

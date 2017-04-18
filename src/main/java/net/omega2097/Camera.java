@@ -4,22 +4,23 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class Camera {
     private Vector3f position = new Vector3f(0,0,0);
-    private float pitch;
-    private float yaw;
-    private float roll;
+    private float pitch; // x
+    private float yaw; // y
+    private float roll; // z
     private boolean updated = false;
 
     public static final float MOUSE_SENSITIVITY = 0.4f;
+    public static final float MAX_PITCH = 65;
 
 
     public boolean updateRotation(float offsetX, float offsetY, float offsetZ) {
-        pitch = (pitch + offsetY) % 360;
-        if (pitch > 90) {
-            pitch = 90;
-        } else if (pitch < -90) {
-            pitch = -90;
+        pitch = (pitch + offsetX) % 360;
+        if (pitch > MAX_PITCH) {
+            pitch = MAX_PITCH;
+        } else if (pitch < -MAX_PITCH) {
+            pitch = -MAX_PITCH;
         }
-        yaw = (yaw + offsetX) % 360;
+        yaw = (yaw + offsetY) % 360;
         roll = (roll + offsetZ) % 360;
 
         if (offsetX != 0 || offsetY != 0 || offsetZ != 0) {
@@ -54,5 +55,9 @@ public class Camera {
 
     public void setUpdated(boolean updated) {
         this.updated = updated;
+    }
+
+    public Vector3f getRotation() {
+        return new Vector3f(pitch, yaw, roll);
     }
 }
