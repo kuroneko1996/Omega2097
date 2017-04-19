@@ -282,8 +282,8 @@ public class Engine {
             }
 
             Vector3f bSize = new Vector3f(0.4f, 0.8f, 0.4f);
-            Vector3f bCenter = new Vector3f(enemy.getPosition().x - 0.5f, enemy.getPosition().y,
-                    enemy.getPosition().z - 0.5f);
+            Vector3f bCenter = new Vector3f(enemy.getPosition().x - 0.2f, enemy.getPosition().y - 0.4f,
+                    enemy.getPosition().z - 0.2f);
             BoundingBox bbox = new BoundingBox(bCenter, bSize);
             enemy.setCollider(new Collider(bbox));
             gameObjects.add(enemy);

@@ -77,7 +77,7 @@ public class Player extends Actor {
             shooter.shoot(gameObjects);
         }
         if (KeyboardHandler.isKeyDown(GLFW_KEY_X)) {
-            System.out.println("pos: " + position + ", dir: " + getDirection() + ", bbox: " + getCollider().getBox().getPosition() + ", cam: " + camera.getPosition());
+            System.out.println("pos: " + position + ", dir: " + getDirection() + ", bbox: " + getCollider().getBox().getPosition() + ", camRot: " + camera.getRotation());
         }
 
         Vector2f mouseRotation = mouseInput.getRotation();
@@ -104,7 +104,7 @@ public class Player extends Actor {
         if (rotY > 360) {
             rotY = rotY - 360;
         }
-        float rotX = 0;
+        float rotX = 180 - cameraRot.x;
         float rotZ = 0;
 
         return new Vector3f(rotX, rotY, rotZ);

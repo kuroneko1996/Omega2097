@@ -116,4 +116,25 @@ public class Util {
 
         return new Vector3f((float)coord[0], (float)coord[1], (float)coord[2]);
     }
+
+    public static Vector3f rotateY(Vector3f vec, float angle) {
+        float cosAngle = (float)Math.cos(angle);
+        float sinAngle = (float)Math.sin(angle);
+        return new Vector3f(
+                -vec.x * cosAngle + vec.z * sinAngle,
+                vec.y,
+                vec.x * sinAngle + vec.z * cosAngle
+        );
+    }
+
+    public static Vector3f rotateX(Vector3f vec, float angle) {
+        float cosAngle = (float)Math.cos(angle);
+        float sinAngle = (float)Math.sin(angle);
+        return new Vector3f(
+                vec.x,
+                vec.z * sinAngle + vec.y * cosAngle,
+                vec.z* cosAngle - vec.y * sinAngle
+
+        );
+    }
 }

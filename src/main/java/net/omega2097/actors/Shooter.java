@@ -7,12 +7,10 @@ import net.omega2097.util.PrimitivesGenerator;
 import net.omega2097.util.Util;
 import org.lwjgl.util.vector.Vector3f;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeMap;
 
-import static org.lwjgl.util.vector.Vector3f.angle;
 
 public class Shooter {
     private Actor owner;
@@ -31,30 +29,27 @@ public class Shooter {
         isShooting = true;
         shootStartTime = System.currentTimeMillis();
 
-        Vector3f ownerDirInRadians = owner.getDirectionInRadians();
 
+        Vector3f ownerDirInRadians = owner.getDirectionInRadians();
         Vector3f rayOrigin = new Vector3f(owner.getPosition());
 
-        float rayDirX = (float)(Math.cos(ownerDirInRadians.y) * Math.cos(ownerDirInRadians.x));
-        float rayDirY = (float)(Math.sin(ownerDirInRadians.y) * Math.cos(ownerDirInRadians.x));
-        float rayDirZ = (float)Math.sin(ownerDirInRadians.x);
+        float angleY = ownerDirInRadians.y;
+        float angleX = ownerDirInRadians.x;
+        Vector3f tmpDir = new Vector3f(0, 0, -1);
 
-        //float rayDirX = (float)Math.sin(ownerDirectionInRadians.x);
-        //float rayDirY = 0;
-        //float rayDirZ = 0;
+        tmpDir = Util.rotateX(tmpDir, angleX);
+        tmpDir = Util.rotateY(tmpDir, angleY);
+        Vector3f rayDirection = tmpDir.normalise(null);
 
-        Vector3f rayDirection = new Vector3f(rayDirX,rayDirY,rayDirZ);
-
-        Vector3f ownerDir = owner.getDirection();
-        System.out.println("Owner direction in degrees" + owner.getDirection());
-        createVisualRay(rayOrigin, new Vector3f(ownerDir), gameObjects);
+        /*BulletImpact bulletImpact = BulletImpact.create(Vector3f.add(owner.getPosition(), new Vector3f(rayDirection.x * 2, rayDirection.y * 2, rayDirection.z * 2),
+                null), Engine.getInstance().getPrimGen(), Engine.getInstance().getLoader());
+        gameObjects.add(bulletImpact);*/
 
         System.out.println("Player is shooting from " + rayOrigin + " to " + rayDirection);
         final Vector3f hitCoord = new Vector3f(0,0,0);
 
         // sort by distance
         java.util.Map<Float, GameObject> objectsMap = new TreeMap<>();
-
         for(GameObject gameObject : gameObjects) {
             if (gameObject.getCollider() != null) {
                 float distance = Vector3f.sub(gameObject.getPosition(), rayOrigin, null).length();
@@ -62,6 +57,7 @@ public class Shooter {
             }
         }
 
+        // check intersections
         Optional<java.util.Map.Entry<Float, GameObject>> mapEntry = objectsMap.entrySet().stream().filter((entry) -> {
             BoundingBox bbox = entry.getValue().getCollider().getBox();
             Vector3f hit = Util.hitBoundingBox(rayOrigin, rayDirection, bbox.getMin(), bbox.getMax());
