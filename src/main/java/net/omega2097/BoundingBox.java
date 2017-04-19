@@ -21,6 +21,10 @@ public class BoundingBox {
         this.size = size;
     }
 
+    public void setPosition(float x, float y, float z) {
+        position.set(x, y, z);
+    }
+
     public Vector3f getPosition() {
         return position;
     }
@@ -30,7 +34,7 @@ public class BoundingBox {
     }
 
     public Vector3f getCenter() {
-        return new Vector3f((size.x + position.x) / 2.0f, (position.y + size.y) / 2.0f, (position.z + size.z) / 2.0f);
+        return new Vector3f(position.x + size.x / 2.0f, position.y + size.y / 2.0f, position.z + size.z / 2.0f);
     }
 
     public Vector3f getMax() {

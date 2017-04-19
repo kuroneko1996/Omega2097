@@ -112,6 +112,6 @@ public class Player extends Actor {
     }
 
     private void updateCameraPosition() {
-        camera.setPosition(position.x, position.y, position.z );
+        camera.setPosition( position.x, position.y, position.z );
     }
 }

@@ -170,6 +170,8 @@ public class Engine {
             }
         }
 
+        //renderer.render(player, shader, viewMatrix);
+
         renderBillboards();
         renderGui();
 
@@ -251,11 +253,15 @@ public class Engine {
     private void addPlayer() {
         player = new Player();
         player.setMouseInput(mouseInput);
-        Vector3f bboxSize = new Vector3f(0.6f,0.8f,0.6f);
+        Vector3f bboxSize = new Vector3f(0.5f,0.8f,0.5f);
         Vector3f bboxCoord = new Vector3f(-0.5f, -0.5f, -0.5f);
         BoundingBox pbox = new BoundingBox(bboxCoord, bboxSize);
         player.setCollider(new Collider(pbox));
         player.setCamera(camera);
+
+        /*player.setTextureName("gray.png");
+        player.setModel(primGen.generateBox(0.5f, 0.8f, 0.5f));
+        player.getModel().addTextureID(loader.loadTexture("res/" + player.getTextureName()));*/
 
         Tile startTile = map.getRandomClearTile();
         System.out.println("Start at " + startTile.getX() + ", " + startTile.getY());

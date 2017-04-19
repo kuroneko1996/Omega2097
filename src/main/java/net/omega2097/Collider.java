@@ -12,7 +12,8 @@ public class Collider {
 
     public Vector3f checkRectanglesOverlap(Collider other) {
         Vector3f result;
-        Vector3f distance = Vector3f.sub(other.getPosition(), this.getPosition(), null);
+        Vector3f distance = Vector3f.sub(other.getBox().getCenter(), this.getBox().getCenter(), null);
+
 
         float thisExtent = (this.box.getMax().x - this.box.getMin().x) / 2.0f;
         float otherExtent = (other.box.getMax().x - other.box.getMin().x) / 2.0f;
@@ -38,7 +39,6 @@ public class Collider {
                         result = new Vector3f(0, 0, zOverlap);
                     }
                 }
-                //System.out.println("x=" + xOverlap + ", z=" + zOverlap + result.toString());
                 return result;
             }
         }
@@ -50,7 +50,7 @@ public class Collider {
     }
 
     public void setPosition(float x, float y, float z) {
-        box.getPosition().set(x, y, z);
+        box.setPosition(x, y, z);
     }
 
     public BoundingBox getBox() {
