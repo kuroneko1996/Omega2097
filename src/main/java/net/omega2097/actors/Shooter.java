@@ -41,10 +41,6 @@ public class Shooter {
         tmpDir = Util.rotateY(tmpDir, angleY);
         Vector3f rayDirection = tmpDir.normalise(null);
 
-        /*BulletImpact bulletImpact = BulletImpact.create(Vector3f.add(owner.getPosition(), new Vector3f(rayDirection.x * 2, rayDirection.y * 2, rayDirection.z * 2),
-                null), Engine.getInstance().getPrimGen(), Engine.getInstance().getLoader());
-        gameObjects.add(bulletImpact);*/
-
         System.out.println("Player is shooting from " + rayOrigin + " to " + rayDirection);
         final Vector3f hitCoord = new Vector3f(0,0,0);
 
@@ -72,6 +68,11 @@ public class Shooter {
             BulletImpact bulletImpact = BulletImpact.create(hitCoord, Engine.getInstance().getPrimGen(),
                     Engine.getInstance().getLoader());
             gameObjects.add(bulletImpact);
+
+            if (mapEntry.get().getValue() instanceof Actor) {
+                Actor actor = (Actor)mapEntry.get().getValue();
+                actor.takeDamage(10);
+            }
 
             System.out.println("GameObject has been shot at " + hitCoord);
         }

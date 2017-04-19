@@ -1,22 +1,22 @@
 package net.omega2097;
 
-public class Stat {
-    private int current;
-    private int max;
+public class Stat<T> {
+    private T current;
+    private T max;
 
-    public int getCurrent() {
+    public T getCurrent() {
         return current;
     }
 
-    public void setCurrent(int current) {
+    public void setCurrent(T current) {
         this.current = current;
     }
 
-    public int getMax() {
+    public T getMax() {
         return max;
     }
 
-    public void setMax(int max) {
+    public void setMax(T max) {
         this.max = max;
     }
 
@@ -24,7 +24,7 @@ public class Stat {
         return current == max;
     }
 
-    public Stat(int value) {
+    public Stat(T value) {
         current = value;
         max = value;
     }

@@ -1,6 +1,9 @@
 package net.omega2097.map;
 
 import net.omega2097.GameObject;
+import net.omega2097.actors.Actor;
+import net.omega2097.objects.Medkit;
+import net.omega2097.objects.Treasure;
 import net.omega2097.util.IRandom;
 
 import java.util.ArrayList;
@@ -11,7 +14,9 @@ public class Map implements IMap {
     private int height;
     private Tile tiles[];
     private IRandom random;
-    List<GameObject> enemies = new ArrayList<>();
+    List<Actor> enemies = new ArrayList<>();
+    List<Medkit> medkits = new ArrayList<>();
+    List<Treasure> treasures = new ArrayList<>();
 
     @Override
     public int getWidth() {
@@ -45,17 +50,59 @@ public class Map implements IMap {
 
     @Override
     public void placeObjects(Rectangle room, int roomNumber) {
+        placeEnemies(room);
+        placeMedkits(room);
+        placeTreasures(room);
+    }
+
+    private void placeEnemies(Rectangle room) {
         int number = random.next(0, 3);
-        number = 3;
 
         while(number > 0) {
             int x = random.next(room.getX(), room.getRight());
             int y = random.next(room.getY(), room.getBottom());
             Tile tile = getTileAt(x, y);
             if (tile.isWalkable() && !tile.isObject()) {
-                GameObject gameObject = new GameObject();
+                Actor gameObject = new Actor(25);
                 gameObject.setPosition(x, 0.5f, y);
+                gameObject.setSolid(true);
                 enemies.add(gameObject);
+                tile.setObject(true);
+                number--;
+            }
+        }
+    }
+
+    private void placeMedkits(Rectangle room) {
+        int number = random.next(0, 1);
+
+        while(number > 0) {
+            int x = random.next(room.getX(), room.getRight());
+            int y = random.next(room.getY(), room.getBottom());
+            Tile tile = getTileAt(x, y);
+            if (tile.isWalkable() && !tile.isObject()) {
+                Medkit gameObject = new Medkit();
+                gameObject.setPosition(x, 0.5f, y);
+                gameObject.setSolid(false);
+                medkits.add(gameObject);
+                tile.setObject(true);
+                number--;
+            }
+        }
+    }
+
+    private void placeTreasures(Rectangle room) {
+        int number = random.next(0, 2);
+
+        while(number > 0) {
+            int x = random.next(room.getX(), room.getRight());
+            int y = random.next(room.getY(), room.getBottom());
+            Tile tile = getTileAt(x, y);
+            if (tile.isWalkable() && !tile.isObject()) {
+                Treasure gameObject = new Treasure();
+                gameObject.setPosition(x, 0.5f, y);
+                gameObject.setSolid(false);
+                treasures.add(gameObject);
                 tile.setObject(true);
                 number--;
             }
@@ -73,8 +120,16 @@ public class Map implements IMap {
         return tiles[x * width + y];
     }
 
-    public List<GameObject> getEnemies() {
+    public List<Actor> getEnemies() {
         return enemies;
+    }
+
+    public List<Medkit> getMedkits() {
+        return medkits;
+    }
+
+    public List<Treasure> getTreasures() {
+        return treasures;
     }
 
     public Tile getRandomClearTile() {

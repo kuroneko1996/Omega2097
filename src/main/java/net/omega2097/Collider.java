@@ -4,6 +4,8 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class Collider {
     private BoundingBox box;
+    private GameObject owner;
+
     public Collider(BoundingBox box) {
         this.box = box;
     }
@@ -57,5 +59,13 @@ public class Collider {
 
     public void setBox(BoundingBox box) {
         this.box = box;
+    }
+
+    public GameObject getOwner() {
+        return owner;
+    }
+
+    public void setOwner(GameObject owner) {
+        this.owner = owner;
     }
 }

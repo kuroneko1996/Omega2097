@@ -94,6 +94,8 @@ public class Engine {
         addFloorAndCeil();
         addWalls();
         addEnemies(map, primGen);
+        addMedkits(map, primGen);
+        addTreasures(map, primGen);
         addPlayer();
         System.out.println("Total " + gameObjects.size() + " game objects created");
         printMap(map);
@@ -121,12 +123,16 @@ public class Engine {
 
             Vector3f shiftVector = collider.checkRectanglesOverlap(player.getCollider());
             if (shiftVector != null) {
-                Vector3f newPosition = Vector3f.add(player.getPosition(), shiftVector, null);
-                player.setPosition(newPosition.x, newPosition.y, newPosition.z);
+                if (gameObject.isSolid()) {
+                    Vector3f newPosition = Vector3f.add(player.getPosition(), shiftVector, null);
+                    player.setPosition(newPosition.x, newPosition.y, newPosition.z);
+                }
+                gameObject.onTriggerEnter(player.getCollider());
             }
         }
 
         for(GameObject gameObject : gameObjects) {
+            if (gameObject.isDestroyed()) continue;
             gameObject.update(gameObjects);
 
             // update animations
@@ -204,6 +210,7 @@ public class Engine {
                 Tile tile = map.getTileAt(x, y);
                 if (!tile.isWalkable() && !tile.isTransparent()) {
                     GameObject gameObject = new GameObject();
+                    gameObject.setSolid(true);
                     gameObject.setModel(primGen.generateCube(1));
                     gameObject.setPosition(x, 0.5f, y);
                     gameObject.setTextureName("w_wall1.png");
@@ -288,6 +295,40 @@ public class Engine {
             enemy.setCollider(new Collider(bbox));
             gameObjects.add(enemy);
             soldierAnimationCurrentFrame.put(enemy, 0f);
+        }
+    }
+
+    private void addMedkits(Map map, PrimitivesGenerator primGen) {
+        for (int i = 0; i < map.getMedkits().size(); i++) {
+            GameObject medkit = map.getMedkits().get(i);
+            medkit.setModel(primGen.generateVerticalQuad(1, 1));
+            medkit.setBillboard(true);
+            medkit.setTextureName("textures/objects/medkit.png");
+            medkit.getModel().addTextureID(loader.loadTexture("res/" + medkit.getTextureName()));
+
+            Vector3f bSize = new Vector3f(1f, 0.5f, 1f);
+            Vector3f bCenter = new Vector3f(medkit.getPosition().x - 0.5f, medkit.getPosition().y - 0.25f,
+                    medkit.getPosition().z - 0.5f);
+            BoundingBox bbox = new BoundingBox(bCenter, bSize);
+            medkit.setCollider(new Collider(bbox));
+            gameObjects.add(medkit);
+        }
+    }
+
+    private void addTreasures(Map map, PrimitivesGenerator primGen) {
+        for (int i = 0; i < map.getTreasures().size(); i++) {
+            GameObject treasure = map.getTreasures().get(i);
+            treasure.setModel(primGen.generateVerticalQuad(1, 1));
+            treasure.setBillboard(true);
+            treasure.setTextureName("textures/objects/chalice.png");
+            treasure.getModel().addTextureID(loader.loadTexture("res/" + treasure.getTextureName()));
+
+            Vector3f bSize = new Vector3f(1f, 0.5f, 1f);
+            Vector3f bCenter = new Vector3f(treasure.getPosition().x - 0.5f, treasure.getPosition().y - 0.25f,
+                    treasure.getPosition().z - 0.5f);
+            BoundingBox bbox = new BoundingBox(bCenter, bSize);
+            treasure.setCollider(new Collider(bbox));
+            gameObjects.add(treasure);
         }
     }
 

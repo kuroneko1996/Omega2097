@@ -9,6 +9,7 @@ public class GameObject {
     private boolean billboard;
     private boolean gui;
     private boolean destroyed = false;
+    private boolean solid = false;
 
     public String getModelName() {
         return modelName;
@@ -24,6 +25,14 @@ public class GameObject {
 
     public void setTextureName(String textureName) {
         this.textureName = textureName;
+    }
+
+    public boolean isSolid() {
+        return solid;
+    }
+
+    public void setSolid(boolean solid) {
+        this.solid = solid;
     }
 
     private String modelName;
@@ -119,11 +128,16 @@ public class GameObject {
         return destroyed;
     }
 
+    protected void onTriggerEnter(Collider other) {
+
+    }
+
     protected Collider collider;
     public Collider getCollider() {
         return collider;
     }
     public void setCollider(Collider collider) {
         this.collider = collider;
+        collider.setOwner(this);
     }
 }
