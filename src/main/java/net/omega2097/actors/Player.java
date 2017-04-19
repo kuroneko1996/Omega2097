@@ -73,7 +73,8 @@ public class Player extends Actor {
             position.z += spd * Math.sin(Math.toRadians(newAngleY));
             updated = true;
         }
-        if (KeyboardHandler.isKeyDown(GLFW_KEY_Z)) {
+        if (KeyboardHandler.isKeyDown(GLFW_KEY_Z)
+                || (mouseInput.isButtonDown(GLFW_MOUSE_BUTTON_1) && mouseInput.isMouseClickedInWindow())) {
             shooter.shoot(gameObjects);
         }
         if (KeyboardHandler.isKeyDown(GLFW_KEY_X)) {

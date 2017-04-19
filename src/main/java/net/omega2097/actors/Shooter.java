@@ -55,6 +55,8 @@ public class Shooter {
 
         // check intersections
         Optional<java.util.Map.Entry<Float, GameObject>> mapEntry = objectsMap.entrySet().stream().filter((entry) -> {
+            if (!entry.getValue().isSolid()) return false;
+
             BoundingBox bbox = entry.getValue().getCollider().getBox();
             Vector3f hit = Util.hitBoundingBox(rayOrigin, rayDirection, bbox.getMin(), bbox.getMax());
             if (hit != null) {

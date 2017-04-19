@@ -16,14 +16,13 @@ public class MouseInput {
     private boolean inWindow;
     private Vector2f rotation;
     private Window window;
+    private static final int MAX_KEYS = 32;
+    private static boolean[] pressed = new boolean[MAX_KEYS];
+    private boolean mouseClickedInWindow = false;
 
     private GLFWCursorPosCallback cursorPosCallback;
     private GLFWCursorEnterCallback cursorEnterCallback;
     private GLFWMouseButtonCallback mouseButtonCallback;
-
-    public Vector2f getRotation() {
-        return rotation;
-    }
 
     public MouseInput() {
         prevX = 0;
@@ -53,15 +52,25 @@ public class MouseInput {
             public void invoke(long windowId, int button, int action, int mods) {
                 if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) {
                     window.setMouseLocked(true);
+                    mouseClickedInWindow = true;
                 }
                 if (button == GLFW_MOUSE_BUTTON_2 && action == GLFW_PRESS) {
                     window.setMouseLocked(false);
+                    mouseClickedInWindow = false;
+                }
+
+                if (button >= 0 && button < MAX_KEYS) {
+                    if (action == GLFW_PRESS) {
+                        pressed[button] = true;
+                    } else if (action == GLFW_RELEASE) {
+                        pressed[button] = false;
+                    }
                 }
             }
         });
     }
 
-    public void update() {
+    void update() {
         if (prevX > 0 && prevY > 0 && inWindow) {
             double deltaX;
             double deltaY;
@@ -78,6 +87,21 @@ public class MouseInput {
         }
         prevX = x;
         prevY = y;
+    }
+
+    public boolean isMouseClickedInWindow() {
+        return mouseClickedInWindow;
+    }
+
+    public Vector2f getRotation() {
+        return rotation;
+    }
+
+    public static boolean isButtonDown(int button) {
+        if (button < 0 || button >= MAX_KEYS) {
+            return false;
+        }
+        return pressed[button];
     }
 
     public void cleanUp() {
