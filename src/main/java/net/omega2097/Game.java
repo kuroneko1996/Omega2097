@@ -5,11 +5,29 @@ public class Game {
     private int lives;
     private int score;
     private int level;
+    private GameState state = GameState.INIT;
+
+    public enum GameState {
+        INIT,
+        RESTART_LEVEL,
+        PLAY,
+        OVER,
+        MENU,
+        EXIT,
+    }
 
     public Game() {
         this.lives = 3;
         this.score = 0;
         this.level = 0;
+    }
+
+    public GameState getState() {
+        return state;
+    }
+
+    public void setState(GameState state) {
+        this.state = state;
     }
 
     public int getLives() {

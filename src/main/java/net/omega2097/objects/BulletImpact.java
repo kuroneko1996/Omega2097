@@ -16,7 +16,7 @@ public class BulletImpact extends GameObject {
         BulletImpact gameObject = new BulletImpact();
 
         // calculate size
-        Model model = primGen.generateCube(0.1f);
+        Model model = primGen.generateCube(0.025f);
         gameObject.setPosition(location.x, location.y, location.z);
         gameObject.setModel(model);
         gameObject.setTextureName("red.png");

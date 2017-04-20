@@ -46,7 +46,7 @@ public class Engine {
     private StringBuilder windowTitle = new StringBuilder(64);
     private MouseInput mouseInput;
     private List<GameObject> billboardObjectsToRender = new ArrayList<>();
-
+    private Game game;
 
     private Engine() {}
     public static Engine getInstance() {
@@ -83,21 +83,9 @@ public class Engine {
 
         viewMatrix = Util.createViewMatrix(camera);
 
-        Random random = new Random(998);
-        RandomRoomGenerator<Map> roomGenerator = new RandomRoomGenerator<>(32,32, 10, 6,
-                9, random);
-        map = new Map(random);
-        roomGenerator.createMap(map);
-
-        addFloorAndCeil();
-        addWalls();
-        addGuards(map, primGen);
-        addDogs(map, primGen);
-        addMedkits(map, primGen);
-        addTreasures(map, primGen);
-        addPlayer();
-        System.out.println("Total " + gameObjects.size() + " game objects have been created");
-        printMap(map);
+        game = new Game();
+        game.setLives(3);
+        game.setState(Game.GameState.INIT);
 
         Util.updateViewMatrix(viewMatrix, camera.getPosition(), camera.getPitch(), camera.getYaw()); // prevent black screen
     }
@@ -105,24 +93,29 @@ public class Engine {
         glfwPollEvents();
     }
     private void update(float delta) {
-        removeDestroyedObjects();
+
+        switch (game.getState()) {
+            case INIT:
+            case RESTART_LEVEL:
+                loadLevel();
+                game.setState(Game.GameState.PLAY);
+                break;
+            case OVER:
+                System.out.println("GAME OVER");
+                game.setState(Game.GameState.MENU);
+                break;
+            case EXIT:
+                break;
+            case MENU:
+                break;
+            case PLAY:
+                playGame();
+                break;
+        }
 
         mouseInput.update();
         if (window.isMouseLocked()) {
             glfwSetCursorPos(window.id, window.width / 2.0f, window.height / 2.0f);
-        }
-
-        player.update();
-        updateCollisions();
-
-        int totalGameObjects = gameObjects.size();
-        for (int i = 0; i < totalGameObjects; i++) {
-            if (gameObjects.get(i).isDestroyed()) continue;
-            gameObjects.get(i).update();
-        }
-
-        if (camera.isUpdated()) {
-            Util.updateViewMatrix(viewMatrix, camera.getPosition(), camera.getPitch(), camera.getYaw());
         }
     }
     private void render() {
@@ -176,6 +169,34 @@ public class Engine {
         }
     }
 
+    private void loadLevel() {
+        toRemove.clear();
+        gameObjects.clear();
+        player = null;
+
+        loader.cleanUp();
+
+        camera = new Camera();
+
+        Random random = new Random(998);
+        RandomRoomGenerator<Map> roomGenerator = new RandomRoomGenerator<>(32,32, 10, 6,
+                9, random);
+        map = new Map(random);
+        roomGenerator.createMap(map);
+
+        addFloorAndCeil();
+        addWalls();
+        addGuards(map, primGen);
+        addDogs(map, primGen);
+        addMedkits(map, primGen);
+        addTreasures(map, primGen);
+        addPlayer();
+        System.out.println("Total " + gameObjects.size() + " game objects have been created");
+        printMap(map);
+
+        Util.updateViewMatrix(viewMatrix, camera.getPosition(), camera.getPitch(), camera.getYaw()); // prevent black screen
+    }
+
     private void addWalls() {
         // generate game objects
         for (int x = 0; x < map.getWidth(); x++) {
@@ -226,6 +247,8 @@ public class Engine {
         player = new Player();
         player.setName("Player");
         player.setMouseInput(mouseInput);
+        player.getHealth().setCurrent(30f).setMax(30f);
+
         Vector3f bboxSize = new Vector3f(0.5f,0.8f,0.5f);
         Vector3f bboxCoord = new Vector3f(-0.5f, -0.5f, -0.5f);
         BoundingBox pbox = new BoundingBox(bboxCoord, bboxSize);
@@ -423,6 +446,22 @@ public class Engine {
         }
     }
 
+    private void playGame() {
+        removeDestroyedObjects();
+        player.update();
+        updateCollisions();
+
+        int totalGameObjects = gameObjects.size();
+        for (int i = 0; i < totalGameObjects; i++) {
+            if (gameObjects.get(i).isDestroyed()) continue;
+            gameObjects.get(i).update();
+        }
+
+        if (camera.isUpdated()) {
+            Util.updateViewMatrix(viewMatrix, camera.getPosition(), camera.getPitch(), camera.getYaw());
+        }
+    }
+
     public void startGameLoop() {
         //long targetTime = 1000 / 60; // 60 fps
 
@@ -445,6 +484,8 @@ public class Engine {
             }
         }
 
+        guiShader.cleanUp();
+        billboardShader.cleanUp();
         shader.cleanUp();
         loader.cleanUp();
     }
@@ -467,5 +508,9 @@ public class Engine {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public Game getGame() {
+        return game;
     }
 }

@@ -75,10 +75,15 @@ public class Loader {
         for (int vao: vaos) {
             GL30.glDeleteVertexArrays(vao);
         }
+        vaos.clear();
+
         for (int vbo: vbos) {
             GL15.glDeleteBuffers(vbo);
         }
+        vbos.clear();
+
         textures.forEach((k, textureID) -> GL11.glDeleteTextures(textureID));
+        textures.clear();
     }
 
     private int createVAO() {

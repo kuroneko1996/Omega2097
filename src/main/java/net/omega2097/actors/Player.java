@@ -46,6 +46,17 @@ public class Player extends Actor {
     @Override
     public void update() {
         super.update();
+        if (getHealth().getCurrent() <= 0) {
+            System.out.println("You have been killed");
+            Game game =  Engine.getInstance().getGame();
+            game.setLives(game.getLives() - 1);
+            if (game.getLives() > 0) {
+                game.setState(Game.GameState.RESTART_LEVEL);
+            } else {
+                game.setState(Game.GameState.OVER);
+            }
+            return;
+        }
 
         boolean updated = false;
         camera.setUpdated(false);
