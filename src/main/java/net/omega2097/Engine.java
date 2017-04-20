@@ -263,7 +263,7 @@ public class Engine {
 
     private void addEnemies(Map map, PrimitivesGenerator primGen) {
         String[] textureNames = {
-                "idle.png", "walk_0.png", "walk_1.png", "walk_1.png", "walk_3.png",
+                "idle.png", "walk_0.png", "walk_1.png", "walk_2.png", "walk_3.png",
                 "attack_0.png", "attack_1.png",
                 "dying_0.png", "dying_1.png", "dying_2.png","dying_3.png",
                 "dead.png"

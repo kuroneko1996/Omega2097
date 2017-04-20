@@ -1,6 +1,7 @@
 package net.omega2097.actors;
 
 
+import net.omega2097.Animation;
 import net.omega2097.Engine;
 import net.omega2097.GameObject;
 import org.lwjgl.util.vector.Vector3f;
@@ -25,36 +26,6 @@ public class EnemyAi extends Ai {
     private GameObject target;
 
     private Animation[] animations;
-    private int currentFrame;
-
-    class Animation {
-        int[] frames;
-        boolean loop = false;
-        long lastFrameTime;
-        long frameDuration = 250;
-
-        Animation(int[] frames, boolean loop) {
-            this.frames = frames;
-            this.loop = loop;
-        }
-        int getCurrentFrame() {
-            if ((System.currentTimeMillis() - lastFrameTime) > frameDuration) {
-                lastFrameTime = System.currentTimeMillis();
-                currentFrame += 1;
-                if ( currentFrame == frames.length) {
-                    if (loop) {
-                        currentFrame = 0;
-                    } else {
-                        currentFrame -= 1;
-                    }
-                }
-            }
-            return currentFrame;
-        }
-        int getCurrentTexture() {
-            return frames[getCurrentFrame()];
-        }
-    }
 
     public EnemyAi(Actor owner) {
         this.owner = owner;
@@ -63,18 +34,20 @@ public class EnemyAi extends Ai {
 
         // TODO explicitly map states to animations
         animations = new Animation[]{
-                new Animation(new int[]{0}, true), // idle
-                new Animation(new int[]{1,2,3,4}, true), // chasing
-                new Animation(new int[]{5,6}, true), // attacking
-                new Animation(new int[]{7, 8, 9, 10}, false), // dying
-                new Animation(new int[]{11}, false) // dead
+                new Animation(new int[]{0}, true, 250), // idle
+                new Animation(new int[]{1,2,3,4}, true, 250), // chasing
+                new Animation(new int[]{5, 6}, true, 500), // attacking
+                new Animation(new int[]{7, 8, 9, 10}, false, 250), // dying
+                new Animation(new int[]{11}, false, 250) // dead
         };
     }
 
     public void setState(State state) {
         this.state = state;
-        currentFrame = 0;
         lastStateChangeTime = System.currentTimeMillis();
+        for(Animation animation : animations) {
+            animation.reset();
+        }
         System.out.println("[" + owner.getName() + "] state changed to " + state);
     }
 
@@ -86,6 +59,7 @@ public class EnemyAi extends Ai {
     private void updateIdle() {
         updateAnimation();
 
+        // TODO prevent constantly checking
         GameObject player = Engine.getInstance().getPlayer();
         if (canSee(player)) {
             setState(State.CHASING);
@@ -100,6 +74,8 @@ public class EnemyAi extends Ai {
         }
 
         updateAnimation();
+
+
 
         Vector3f ownerToTarget = Vector3f.sub(target.getPosition(), owner.getPosition(), null);
         float distance = ownerToTarget.length();
