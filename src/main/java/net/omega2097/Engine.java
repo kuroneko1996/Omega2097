@@ -1,6 +1,7 @@
 package net.omega2097;
 
 import net.omega2097.actors.Actor;
+import net.omega2097.actors.EnemyAi;
 import net.omega2097.actors.Player;
 import net.omega2097.map.Map;
 import net.omega2097.map.RandomRoomGenerator;
@@ -90,7 +91,8 @@ public class Engine {
 
         addFloorAndCeil();
         addWalls();
-        addEnemies(map, primGen);
+        addGuards(map, primGen);
+        addDogs(map, primGen);
         addMedkits(map, primGen);
         addTreasures(map, primGen);
         addPlayer();
@@ -229,10 +231,6 @@ public class Engine {
         player.setCollider(new Collider(pbox));
         player.setCamera(camera);
 
-        /*player.setTextureName("gray.png");
-        player.setModel(primGen.generateBox(0.5f, 0.8f, 0.5f));
-        player.getModel().addTextureID(loader.loadTexture("res/" + player.getTextureName()));*/
-
         Tile startTile = map.getRandomClearTile();
         System.out.println("Start at " + startTile.getX() + ", " + startTile.getY());
         player.setPosition(startTile.getX() + 0.5f, 0.5f, startTile.getY() + 0.5f);
@@ -246,7 +244,48 @@ public class Engine {
         player.setGun(gun);
     }
 
-    private void addEnemies(Map map, PrimitivesGenerator primGen) {
+    private void addDogs(Map map, PrimitivesGenerator primGen) {
+        String[] textureNames = {
+                "idle.png", "run_0.png", "run_1.png", "run_2.png",
+                "attack_0.png", "attack_1.png", "attack_2.png",
+                "dying_0.png", "dying_1.png", "dying_2.png",
+                "dead.png"
+        };
+        int[] textureIDs = new int[textureNames.length];
+        for (int i = 0; i < textureNames.length; i++) {
+            textureIDs[i] = loader.loadTexture("res/" + "textures/dog/" + textureNames[i] );
+        }
+        Animation[] animations = new Animation[]{
+                new Animation(new int[]{0}, true, 250), // idle
+                new Animation(new int[]{1, 2, 0, 3}, true, 250), // chasing
+                new Animation(new int[]{4, 5, 6}, true, 500), // attacking
+                new Animation(new int[]{7, 8, 9}, false, 250), // dying
+                new Animation(new int[]{10}, false, 250) // dead
+        };
+
+        for (int i = 0; i < map.getDogs().size(); i++) {
+            Actor enemy = map.getDogs().get(i);
+            enemy.setName("Dog " + i);
+            enemy.setModel(primGen.generateVerticalQuad(1,1));
+            enemy.setBillboard(true);
+            enemy.setTextureName("textures/dog/idle.png");
+            EnemyAi enemyAi = (EnemyAi)enemy.getAi();
+            enemyAi.setAnimations(animations);
+
+            for(int textureID : textureIDs) {
+                enemy.getModel().addTextureID(textureID);
+            }
+
+            Vector3f bSize = new Vector3f(0.4f, 0.8f, 0.4f);
+            Vector3f bCenter = new Vector3f(enemy.getPosition().x - 0.2f, enemy.getPosition().y - 0.4f,
+                    enemy.getPosition().z - 0.2f);
+            BoundingBox bbox = new BoundingBox(bCenter, bSize);
+            enemy.setCollider(new Collider(bbox));
+            gameObjects.add(enemy);
+        }
+    }
+
+    private void addGuards(Map map, PrimitivesGenerator primGen) {
         String[] textureNames = {
                 "idle.png", "walk_0.png", "walk_1.png", "walk_2.png", "walk_3.png",
                 "attack_0.png", "attack_1.png",
@@ -255,15 +294,25 @@ public class Engine {
         };
         int[] textureIDs = new int[textureNames.length];
         for (int i = 0; i < textureNames.length; i++) {
-            textureIDs[i] = loader.loadTexture("res/" + "textures/soldier/" + textureNames[i] );
+            textureIDs[i] = loader.loadTexture("res/" + "textures/guard/" + textureNames[i] );
         }
 
-        for (int i = 0; i < map.getEnemies().size(); i++) {
-            Actor enemy = map.getEnemies().get(i);
-            enemy.setName("Enemy " + i);
+        Animation[] animations = new Animation[]{
+                new Animation(new int[]{0}, true, 250), // idle
+                new Animation(new int[]{1, 2, 3, 4}, true, 250), // chasing
+                new Animation(new int[]{5, 6}, true, 500), // attacking
+                new Animation(new int[]{7, 8, 9, 10}, false, 250), // dying
+                new Animation(new int[]{11}, false, 250) // dead
+        };
+
+        for (int i = 0; i < map.getGuards().size(); i++) {
+            Actor enemy = map.getGuards().get(i);
+            enemy.setName("Guard " + i);
             enemy.setModel(primGen.generateVerticalQuad(1,1));
             enemy.setBillboard(true);
-            enemy.setTextureName("textures/soldier/walk_0.png");
+            enemy.setTextureName("textures/guard/walk_0.png");
+            EnemyAi enemyAi = (EnemyAi)enemy.getAi();
+            enemyAi.setAnimations(animations);
 
             for(int textureID : textureIDs) {
                 enemy.getModel().addTextureID(textureID);

@@ -33,13 +33,10 @@ public class EnemyAi extends Ai {
         this.target = null;
 
         // TODO explicitly map states to animations
-        animations = new Animation[]{
-                new Animation(new int[]{0}, true, 250), // idle
-                new Animation(new int[]{1,2,3,4}, true, 250), // chasing
-                new Animation(new int[]{5, 6}, true, 500), // attacking
-                new Animation(new int[]{7, 8, 9, 10}, false, 250), // dying
-                new Animation(new int[]{11}, false, 250) // dead
-        };
+    }
+
+    public void setAnimations(Animation[] animations) {
+        this.animations = animations;
     }
 
     public void setState(State state) {

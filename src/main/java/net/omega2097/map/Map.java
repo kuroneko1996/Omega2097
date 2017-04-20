@@ -14,7 +14,8 @@ public class Map implements IMap {
     private int height;
     private Tile tiles[];
     private IRandom random;
-    private List<Actor> enemies = new ArrayList<>();
+    private List<Actor> guards = new ArrayList<>();
+    private List<Actor> dogs = new ArrayList<>();
     private List<Medkit> medkits = new ArrayList<>();
     private List<Treasure> treasures = new ArrayList<>();
 
@@ -61,6 +62,9 @@ public class Map implements IMap {
         while(number > 0) {
             int x = random.next(room.getX(), room.getRight());
             int y = random.next(room.getY(), room.getBottom());
+
+            int enemyType = random.next(0, 3); // guard or dog
+
             Tile tile = getTileAt(x, y);
             if (tile.isWalkable() && !tile.isObject()) {
                 Actor gameObject = new Actor();
@@ -69,7 +73,12 @@ public class Map implements IMap {
                 gameObject.setSolid(true);
                 gameObject.setAi(new EnemyAi(gameObject));
                 // TODO set orientation
-                enemies.add(gameObject);
+
+                if (enemyType == 0) {
+                    guards.add(gameObject);
+                } else {
+                    dogs.add(gameObject);
+                }
                 tile.setObject(true);
                 number--;
             }
@@ -123,8 +132,12 @@ public class Map implements IMap {
         return tiles[x * width + y];
     }
 
-    public List<Actor> getEnemies() {
-        return enemies;
+    public List<Actor> getGuards() {
+        return guards;
+    }
+
+    public List<Actor> getDogs() {
+        return dogs;
     }
 
     public List<Medkit> getMedkits() {
