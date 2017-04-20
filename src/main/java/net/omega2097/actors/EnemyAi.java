@@ -76,7 +76,6 @@ public class EnemyAi extends Ai {
         updateAnimation();
 
 
-
         Vector3f ownerToTarget = Vector3f.sub(target.getPosition(), owner.getPosition(), null);
         float distance = ownerToTarget.length();
         Vector3f ownerToTargetNormalized = ownerToTarget.normalise(null); // TODO divide by distance

@@ -111,22 +111,7 @@ public class Engine {
         }
 
         player.update(gameObjects);
-
-        for(GameObject gameObject : gameObjects) {
-            Collider collider = gameObject.getCollider();
-            if (collider == null) {
-                continue;
-            }
-
-            Vector3f shiftVector = collider.checkRectanglesOverlap(player.getCollider());
-            if (shiftVector != null) {
-                if (gameObject.isSolid()) {
-                    Vector3f newPosition = Vector3f.add(player.getPosition(), shiftVector, null);
-                    player.setPosition(newPosition.x, newPosition.y, newPosition.z);
-                }
-                gameObject.onTriggerEnter(player.getCollider());
-            }
-        }
+        updateCollisions();
 
         for(GameObject gameObject : gameObjects) {
             if (gameObject.isDestroyed()) continue;
@@ -353,6 +338,38 @@ public class Engine {
         }
         gameObjects.removeAll(toRemove);
         toRemove.clear();
+    }
+
+    private void updateCollisions() {
+        resolveCollisions(player);
+
+        for (GameObject gameObject : gameObjects) {
+            if (!gameObject.isSolid()) continue;
+
+            if (gameObject instanceof Actor) {
+                resolveCollisions((Actor) gameObject);
+            }
+        }
+    }
+
+    private void resolveCollisions(Actor actor) {
+        for(GameObject gameObject : gameObjects) {
+            if (actor == gameObject) continue;
+
+            Collider collider = gameObject.getCollider();
+            if (collider == null) {
+                continue;
+            }
+
+            Vector3f shiftVector = collider.checkRectanglesOverlap(actor.getCollider());
+            if (shiftVector != null) {
+                if (gameObject.isSolid()) {
+                    Vector3f newPosition = Vector3f.add(actor.getPosition(), shiftVector, null);
+                    actor.setPosition(newPosition.x, newPosition.y, newPosition.z);
+                }
+                gameObject.onTriggerEnter(actor.getCollider());
+            }
+        }
     }
 
     public void startGameLoop() {
