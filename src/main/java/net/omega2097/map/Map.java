@@ -1,7 +1,7 @@
 package net.omega2097.map;
 
-import net.omega2097.GameObject;
 import net.omega2097.actors.Actor;
+import net.omega2097.actors.EnemyAi;
 import net.omega2097.objects.Medkit;
 import net.omega2097.objects.Treasure;
 import net.omega2097.util.IRandom;
@@ -14,9 +14,9 @@ public class Map implements IMap {
     private int height;
     private Tile tiles[];
     private IRandom random;
-    List<Actor> enemies = new ArrayList<>();
-    List<Medkit> medkits = new ArrayList<>();
-    List<Treasure> treasures = new ArrayList<>();
+    private List<Actor> enemies = new ArrayList<>();
+    private List<Medkit> medkits = new ArrayList<>();
+    private List<Treasure> treasures = new ArrayList<>();
 
     @Override
     public int getWidth() {
@@ -63,9 +63,12 @@ public class Map implements IMap {
             int y = random.next(room.getY(), room.getBottom());
             Tile tile = getTileAt(x, y);
             if (tile.isWalkable() && !tile.isObject()) {
-                Actor gameObject = new Actor(25);
+                Actor gameObject = new Actor();
+                gameObject.getHealth().setMax(25f).setCurrent(25f);
                 gameObject.setPosition(x, 0.5f, y);
                 gameObject.setSolid(true);
+                gameObject.setAi(new EnemyAi(gameObject));
+                // TODO set orientation
                 enemies.add(gameObject);
                 tile.setObject(true);
                 number--;

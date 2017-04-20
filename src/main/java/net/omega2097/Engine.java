@@ -1,5 +1,6 @@
 package net.omega2097;
 
+import net.omega2097.actors.Actor;
 import net.omega2097.actors.Player;
 import net.omega2097.map.Map;
 import net.omega2097.map.RandomRoomGenerator;
@@ -97,7 +98,7 @@ public class Engine {
         addMedkits(map, primGen);
         addTreasures(map, primGen);
         addPlayer();
-        System.out.println("Total " + gameObjects.size() + " game objects created");
+        System.out.println("Total " + gameObjects.size() + " game objects have been created");
         printMap(map);
 
         Util.updateViewMatrix(viewMatrix, camera.getPosition(), camera.getPitch(), camera.getYaw()); // prevent black screen
@@ -157,7 +158,6 @@ public class Engine {
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-        //GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glClearColor(0,0,0,1);
         GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear frame/depth buffer
 
@@ -169,8 +169,6 @@ public class Engine {
                 renderer.render(gameObject, shader, viewMatrix);
             }
         }
-
-        //renderer.render(player, shader, viewMatrix);
 
         renderBillboards();
         renderGui();
@@ -212,6 +210,7 @@ public class Engine {
                 Tile tile = map.getTileAt(x, y);
                 if (!tile.isWalkable() && !tile.isTransparent()) {
                     GameObject gameObject = new GameObject();
+                    gameObject.setName("Wall x=" + x + ", y=" + y);
                     gameObject.setSolid(true);
                     gameObject.setModel(primGen.generateCube(1));
                     gameObject.setPosition(x, 0.5f, y);
@@ -235,14 +234,14 @@ public class Engine {
         GameObject floor = new GameObject();
         floor.setModel(primGen.generateHorizontalQuad(32, 32));
         floor.setPosition(0,0,0);
-        floor.setScale(new Vector3f(32, 1, 32));
+        floor.setScale(32, 1, 32);
         floor.setTextureName("w_floor1.png");
         floor.getModel().addTextureID(loader.loadTexture("res/" + floor.getTextureName()));
 
         GameObject ceil = new GameObject();
         ceil.setModel(primGen.generateHorizontalQuad(32, 32));
         ceil.setPosition(0, 1,0);
-        ceil.setScale(new Vector3f(32, 1, 32));
+        ceil.setScale(32, 1, 32);
         ceil.setTextureName("w_ceil1.png");
         ceil.getModel().addTextureID(loader.loadTexture("res/" + ceil.getTextureName()));
 
@@ -252,6 +251,7 @@ public class Engine {
 
     private void addPlayer() {
         player = new Player();
+        player.setName("Player");
         player.setMouseInput(mouseInput);
         Vector3f bboxSize = new Vector3f(0.5f,0.8f,0.5f);
         Vector3f bboxCoord = new Vector3f(-0.5f, -0.5f, -0.5f);
@@ -285,7 +285,8 @@ public class Engine {
         }
 
         for (int i = 0; i < map.getEnemies().size(); i++) {
-            GameObject enemy = map.getEnemies().get(i);
+            Actor enemy = map.getEnemies().get(i);
+            enemy.setName("Enemy " + i);
             enemy.setModel(primGen.generateVerticalQuad(1,1));
             enemy.setBillboard(true);
             enemy.setTextureName("textures/soldier/walk_0.png");
@@ -307,6 +308,7 @@ public class Engine {
     private void addMedkits(Map map, PrimitivesGenerator primGen) {
         for (int i = 0; i < map.getMedkits().size(); i++) {
             GameObject medkit = map.getMedkits().get(i);
+            medkit.setName("Medkit " + i);
             medkit.setModel(primGen.generateVerticalQuad(1, 1));
             medkit.setBillboard(true);
             medkit.setTextureName("textures/objects/medkit.png");
@@ -324,6 +326,7 @@ public class Engine {
     private void addTreasures(Map map, PrimitivesGenerator primGen) {
         for (int i = 0; i < map.getTreasures().size(); i++) {
             GameObject treasure = map.getTreasures().get(i);
+            treasure.setName("Treasure " + i);
             treasure.setModel(primGen.generateVerticalQuad(1, 1));
             treasure.setBillboard(true);
             treasure.setTextureName("textures/objects/chalice.png");
@@ -400,5 +403,9 @@ public class Engine {
 
     public PrimitivesGenerator getPrimGen() {
         return primGen;
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 }

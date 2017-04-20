@@ -9,17 +9,13 @@ import org.lwjgl.util.vector.Vector3f;
 import java.util.List;
 
 public class Actor extends GameObject {
-    Stat<Float> health;
+    Stat<Float> health = new Stat<>(100f);
     Stat<Integer> gold = new Stat<>(0);
     Shooter shooter;
+    Ai ai;
+    Vector3f direction = new Vector3f(0,0,0); // have to be a normalized vector
 
     public Actor() {
-        this(100);
-    }
-
-    public Actor(float hp) {
-        super();
-        health = new Stat<Float>(hp);
     }
 
     public Stat<Float> getHealth() {
@@ -30,12 +26,12 @@ public class Actor extends GameObject {
         return gold;
     }
 
-    public Shooter getShooter() {
-        return shooter;
+    public Ai getAi() {
+        return ai;
     }
 
-    public void setShooter(Shooter shooter) {
-        this.shooter = shooter;
+    public void setAi(Ai ai) {
+        this.ai = ai;
     }
 
     public Vector3f getDirection() {
@@ -52,7 +48,7 @@ public class Actor extends GameObject {
         health.setCurrent(health.getCurrent() - dmg);
 
         if (health.getCurrent() <= 0) {
-            System.out.println("%s died");
+            System.out.println(getName() + " died.");
             destroy();
         }
     }
@@ -61,6 +57,12 @@ public class Actor extends GameObject {
     public void setPosition(float x, float y, float z) {
         super.setPosition(x, y, z);
         updateColliderPosition();
+    }
+
+    @Override
+    public void setRotation(float x, float y, float z) {
+        super.setRotation(x, y, z);
+        //TODO update direction here
     }
 
     @Override

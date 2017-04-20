@@ -8,16 +8,18 @@ public class Stat<T> {
         return current;
     }
 
-    public void setCurrent(T current) {
+    public Stat<T> setCurrent(T current) {
         this.current = current;
+        return this;
     }
 
     public T getMax() {
         return max;
     }
 
-    public void setMax(T max) {
+    public Stat<T> setMax(T max) {
         this.max = max;
+        return this;
     }
 
     public boolean isMax() {

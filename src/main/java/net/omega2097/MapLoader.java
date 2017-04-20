@@ -38,7 +38,12 @@ public class MapLoader {
                 Vector3f rotation = new Vector3f(jRot.get(0).asFloat(),jRot.get(1).asFloat(),jRot.get(2).asFloat());
                 Vector3f scale = new Vector3f(jScale.get(0).asFloat(),jScale.get(1).asFloat(),jScale.get(2).asFloat());
 
-                GameObject gameObject = new GameObject(modelName, textureName, position, rotation, scale);
+                GameObject gameObject = new GameObject();
+                gameObject.setModelName(modelName);
+                gameObject.setTextureName(textureName);
+                gameObject.setPosition(position.x, position.y, position.z);
+                gameObject.setRotation(rotation.x, rotation.y, rotation.z);
+                gameObject.setScale(scale.x, scale.y, scale.z);
                 gameObjectList.add(gameObject);
             }
         } catch (IOException e) {

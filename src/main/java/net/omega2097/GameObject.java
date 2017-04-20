@@ -5,6 +5,7 @@ import org.lwjgl.util.vector.Vector3f;
 import java.util.List;
 
 public class GameObject {
+    private String name = "GameObject";
     private Model model;
     private boolean billboard;
     private boolean gui;
@@ -35,6 +36,14 @@ public class GameObject {
         this.solid = solid;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     private String modelName;
     private String textureName;
     protected Vector3f position;
@@ -45,23 +54,6 @@ public class GameObject {
         this.position = new Vector3f(0,0,0);
         this.scale = new Vector3f(1,1,1);
         this.rotation = new Vector3f(0,0,0);
-    }
-
-    public GameObject(String modelName, String textureName, Vector3f position, Vector3f rotation, Vector3f scale) {
-        this.modelName = modelName;
-        this.textureName = textureName;
-        this.position = position;
-        this.rotation = rotation;
-        this.scale = scale;
-    }
-
-    public GameObject(String modelName, String textureName) {
-        this(modelName, textureName, new Vector3f(0f,0f,0f), new Vector3f(0f,0f,0f),
-                new Vector3f(1f,1f,1f));
-    }
-
-    public GameObject(String modelName) {
-        this(modelName, "");
     }
 
     public Model getModel() {
@@ -84,10 +76,6 @@ public class GameObject {
         return rotation;
     }
 
-    public void setRotation(Vector3f rotation) {
-        this.rotation = rotation;
-    }
-
     public void setRotation(float x, float y, float z) {
         this.rotation.set(x, y, z);
     }
@@ -96,8 +84,8 @@ public class GameObject {
         return scale;
     }
 
-    public void setScale(Vector3f scale) {
-        this.scale = scale;
+    public void setScale(float x, float y, float z) {
+        this.scale.set(x, y, z);
     }
 
     public boolean isBillboard() {

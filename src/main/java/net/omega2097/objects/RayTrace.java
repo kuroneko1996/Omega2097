@@ -19,7 +19,7 @@ public class RayTrace extends GameObject {
         Model model = primGen.generateBox(0.025f,0.025f,3);
         gameObject.setPosition(origin.x, origin.y, origin.z);
 
-        gameObject.setRotation(rot);
+        gameObject.setRotation(rot.x, rot.y, rot.z);
 
         gameObject.setModel(model);
         gameObject.setTextureName("red.png");

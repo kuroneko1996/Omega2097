@@ -26,9 +26,9 @@ public class Shooter {
 
     public void shoot(List<GameObject> gameObjects) {
         if (this.isShooting) return;
+
         isShooting = true;
         shootStartTime = System.currentTimeMillis();
-
 
         Vector3f ownerDirInRadians = owner.getDirectionInRadians();
         Vector3f rayOrigin = new Vector3f(owner.getPosition());
@@ -41,7 +41,6 @@ public class Shooter {
         tmpDir = Util.rotateY(tmpDir, angleY);
         Vector3f rayDirection = tmpDir.normalise(null);
 
-        System.out.println("Player is shooting from " + rayOrigin + " to " + rayDirection);
         final Vector3f hitCoord = new Vector3f(0,0,0);
 
         // sort by distance
@@ -67,16 +66,16 @@ public class Shooter {
         }).findFirst();
 
         if (mapEntry.isPresent()) {
+            GameObject hitGameObject = mapEntry.get().getValue();
             BulletImpact bulletImpact = BulletImpact.create(hitCoord, Engine.getInstance().getPrimGen(),
                     Engine.getInstance().getLoader());
             gameObjects.add(bulletImpact);
 
-            if (mapEntry.get().getValue() instanceof Actor) {
-                Actor actor = (Actor)mapEntry.get().getValue();
+            System.out.println(hitGameObject.getName() + " has been shot at " + hitCoord);
+            if (hitGameObject instanceof Actor) {
+                Actor actor = (Actor)hitGameObject;
                 actor.takeDamage(10);
             }
-
-            System.out.println("GameObject has been shot at " + hitCoord);
         }
     }
     private void createVisualRay(Vector3f origin, Vector3f rot, List<GameObject> gameObjects) {
