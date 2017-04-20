@@ -36,10 +36,6 @@ public class Engine {
     private PrimitivesGenerator primGen;
     private List<GameObject> toRemove = new ArrayList<>();
 
-    private int soldierWalkAnimationMaxFrame = 4;
-    private HashMap<GameObject, Float> soldierAnimationCurrentFrame;
-
-
     private List<GameObject> gameObjects = new ArrayList<>();
 
     private double lastLoopTime;
@@ -135,17 +131,6 @@ public class Engine {
         for(GameObject gameObject : gameObjects) {
             if (gameObject.isDestroyed()) continue;
             gameObject.update(gameObjects);
-
-            // update animations
-            Float frame = soldierAnimationCurrentFrame.get(gameObject);
-            if (frame != null) {
-                frame = frame + 0.05f;
-                if (frame > soldierWalkAnimationMaxFrame) {
-                    frame = 0f;
-                }
-                soldierAnimationCurrentFrame.put(gameObject, frame);
-                gameObject.getModel().setCurrentTexture((int)frame.floatValue());
-            }
         }
 
         if (camera.isUpdated()) {
@@ -277,11 +262,15 @@ public class Engine {
     }
 
     private void addEnemies(Map map, PrimitivesGenerator primGen) {
-        soldierAnimationCurrentFrame = new HashMap<>();
-        List<Integer> soldierWalkAnimationTextures = new ArrayList<>();
-
-        for (int ti = 0; ti < (soldierWalkAnimationMaxFrame + 1); ti++) {
-            soldierWalkAnimationTextures.add(loader.loadTexture("res/" + "textures/soldier/" + "walk_" + ti + ".png" ));
+        String[] textureNames = {
+                "idle.png", "walk_0.png", "walk_1.png", "walk_1.png", "walk_3.png",
+                "attack_0.png", "attack_1.png",
+                "dying_0.png", "dying_1.png", "dying_2.png","dying_3.png",
+                "dead.png"
+        };
+        int[] textureIDs = new int[textureNames.length];
+        for (int i = 0; i < textureNames.length; i++) {
+            textureIDs[i] = loader.loadTexture("res/" + "textures/soldier/" + textureNames[i] );
         }
 
         for (int i = 0; i < map.getEnemies().size(); i++) {
@@ -291,8 +280,8 @@ public class Engine {
             enemy.setBillboard(true);
             enemy.setTextureName("textures/soldier/walk_0.png");
 
-            for (int ti = 0; ti < (soldierWalkAnimationMaxFrame + 1); ti++) {
-                enemy.getModel().addTextureID(soldierWalkAnimationTextures.get(ti));
+            for(int textureID : textureIDs) {
+                enemy.getModel().addTextureID(textureID);
             }
 
             Vector3f bSize = new Vector3f(0.4f, 0.8f, 0.4f);
@@ -301,7 +290,6 @@ public class Engine {
             BoundingBox bbox = new BoundingBox(bCenter, bSize);
             enemy.setCollider(new Collider(bbox));
             gameObjects.add(enemy);
-            soldierAnimationCurrentFrame.put(enemy, 0f);
         }
     }
 

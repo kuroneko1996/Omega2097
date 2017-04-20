@@ -1,9 +1,6 @@
 package net.omega2097.actors;
 
-import net.omega2097.BoundingBox;
-import net.omega2097.Camera;
-import net.omega2097.GameObject;
-import net.omega2097.Stat;
+import net.omega2097.*;
 import org.lwjgl.util.vector.Vector3f;
 
 import java.util.List;
@@ -46,11 +43,6 @@ public class Actor extends GameObject {
 
     void takeDamage(float dmg) {
         health.setCurrent(health.getCurrent() - dmg);
-
-        if (health.getCurrent() <= 0) {
-            System.out.println(getName() + " died.");
-            destroy();
-        }
     }
 
     @Override
@@ -72,6 +64,15 @@ public class Actor extends GameObject {
         if (shooter != null) {
             shooter.update();
         }
+        if (ai != null) {
+            ai.update();
+        }
+    }
+
+    @Override
+    protected void onTriggerEnter(Collider other) {
+        super.onTriggerEnter(other);
+
     }
 
     void updateColliderPosition() {
