@@ -9,6 +9,7 @@ public class GuiShader extends ShaderProgram {
 
     private int locationOfProjectionMatrix;
     private int locationOfViewMatrix;
+    private int locationOfVertexPosition;
 
     public GuiShader() {
         super(VERTEX_FILE, FRAGMENT_FILE);
@@ -22,8 +23,8 @@ public class GuiShader extends ShaderProgram {
         loadMatrix(locationOfViewMatrix, matrix);
     }
 
-    public void loadGuiCenter(Vector3f center) {
-        loadVector3f(getUniformLocation("vertexPosition_worldspace"), center);
+    public void loadGuiCenter(float centerX, float centerY, float centerZ) {
+        loadVector3f(locationOfVertexPosition, centerX, centerY, centerZ);
     }
 
     @Override
@@ -36,5 +37,6 @@ public class GuiShader extends ShaderProgram {
     protected void getAllUniformLocations() {
         locationOfProjectionMatrix = getUniformLocation("projectionMatrix");
         locationOfViewMatrix = getUniformLocation("viewMatrix");
+        locationOfVertexPosition = getUniformLocation("vertexPosition_worldspace");
     }
 }

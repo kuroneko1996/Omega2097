@@ -67,13 +67,13 @@ public class MeshRenderer {
 
     public void renderGui(GameObject gameObject, GuiShader shader, Matrix4f viewMatrix) {
         Model model = gameObject.getModel();
-        Vector3f guiCenter = new Vector3f(gameObject.getPosition());
+        Vector3f guiCenter = gameObject.getPosition();
 
         shader.start();
         // load uniforms
         shader.loadViewMatrix(viewMatrix);
         shader.loadProjectionMatrix(guiProjectionMatrix);
-        shader.loadGuiCenter(guiCenter);
+        shader.loadGuiCenter(guiCenter.x, guiCenter.y, guiCenter.z);
 
         glRenderAndCleanUp(model);
 

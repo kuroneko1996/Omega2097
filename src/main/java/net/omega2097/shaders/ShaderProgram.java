@@ -56,6 +56,7 @@ public abstract class ShaderProgram {
         GL20.glBindAttribLocation(programID, attribute, variableName);
     }
 
+    // ITS VALUE HAS TO BE CACHED
     protected int getUniformLocation(String name) {
         return GL20.glGetUniformLocation(programID, name);
     }
@@ -66,11 +67,11 @@ public abstract class ShaderProgram {
         GL20.glUniformMatrix4fv(location, false, matrixBuffer);
     }
 
-    protected void loadVector3f(int location, Vector3f vector) {
-        GL20.glUniform3f(location, vector.x, vector.y, vector.z);
+    void loadVector3f(int location, float x, float y, float z) {
+        GL20.glUniform3f(location, x, y, z);
     }
 
-    protected void loadVector2f(int location, Vector2f vector) {
+    void loadVector2f(int location, Vector2f vector) {
         GL20.glUniform2f(location, vector.x, vector.y);
     }
 

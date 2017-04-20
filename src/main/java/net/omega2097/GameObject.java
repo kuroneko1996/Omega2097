@@ -7,8 +7,8 @@ import java.util.List;
 public class GameObject {
     private String name = "GameObject";
     private Model model;
-    private boolean billboard;
-    private boolean gui;
+    private boolean billboard = false;
+    private boolean gui = false;
     private boolean destroyed = false;
     private boolean solid = false;
 

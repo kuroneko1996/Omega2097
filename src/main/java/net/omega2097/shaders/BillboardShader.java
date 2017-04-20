@@ -10,14 +10,18 @@ public class BillboardShader extends ShaderProgram {
 
     private int locationOfProjectionMatrix;
     private int locationOfViewMatrix;
+    private int locationOfCameraRight;
+    private int locationOfCameraUp;
+    private int locationOfBillboardPosition;
+    private int locationOfBillboardSize;
 
     public BillboardShader() {
         super(VERTEX_FILE, FRAGMENT_FILE);
     }
 
     public void loadCameraVectors(Vector3f right, Vector3f up) {
-        loadVector3f(getUniformLocation("CameraRight_worldspace"), right);
-        loadVector3f(getUniformLocation("CameraUp_worldspace"), up);
+        loadVector3f(locationOfCameraRight, right.x, right.y, right.z);
+        loadVector3f(locationOfCameraUp, up.x, up.y, up.z);
     }
 
     public void loadProjectionMatrix(Matrix4f matrix) {
@@ -29,8 +33,8 @@ public class BillboardShader extends ShaderProgram {
     }
 
     public void loadBillboard(Vector3f center, Vector2f size) {
-        loadVector3f(getUniformLocation("BillboardPos"), center);
-        loadVector2f(getUniformLocation("BillboardSize"), size);
+        loadVector3f(locationOfBillboardPosition, center.x, center.y, center.z);
+        loadVector2f(locationOfBillboardSize, size);
     }
 
     @Override
@@ -43,5 +47,10 @@ public class BillboardShader extends ShaderProgram {
     protected void getAllUniformLocations() {
         locationOfProjectionMatrix = getUniformLocation("projectionMatrix");
         locationOfViewMatrix = getUniformLocation("viewMatrix");
+        locationOfCameraRight = getUniformLocation("CameraRight_worldspace");
+        locationOfCameraUp = getUniformLocation("CameraUp_worldspace");
+        locationOfBillboardPosition = getUniformLocation("BillboardPos");
+        locationOfBillboardSize = getUniformLocation("BillboardSize");
+
     }
 }
