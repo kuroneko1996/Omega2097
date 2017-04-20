@@ -5,7 +5,7 @@ public class Animation {
     private int currentFrame;
     boolean loop = false;
     long lastFrameTime;
-    long frameDuration;
+    int frameDuration;
 
     public Animation(int[] frames, boolean loop, int frameDuration) {
         this.frames = frames;
@@ -21,6 +21,10 @@ public class Animation {
         lastFrameTime = System.currentTimeMillis();
         currentFrame = 0;
     }
+
+    public int getTotalFrames() { return frames.length; }
+
+    public int getFrameDuration() { return frameDuration; }
 
     private int getCurrentFrame() {
         if (lastFrameTime == 0) {

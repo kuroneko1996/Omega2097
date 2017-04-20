@@ -112,12 +112,13 @@ public class Engine {
             glfwSetCursorPos(window.id, window.width / 2.0f, window.height / 2.0f);
         }
 
-        player.update(gameObjects);
+        player.update();
         updateCollisions();
 
-        for(GameObject gameObject : gameObjects) {
-            if (gameObject.isDestroyed()) continue;
-            gameObject.update(gameObjects);
+        int totalGameObjects = gameObjects.size();
+        for (int i = 0; i < totalGameObjects; i++) {
+            if (gameObjects.get(i).isDestroyed()) continue;
+            gameObjects.get(i).update();
         }
 
         if (camera.isUpdated()) {
@@ -313,6 +314,7 @@ public class Engine {
             enemy.setTextureName("textures/guard/walk_0.png");
             EnemyAi enemyAi = (EnemyAi)enemy.getAi();
             enemyAi.setAnimations(animations);
+            enemy.getShooter().setShootDelay(animations[2].getFrameDuration() * animations[2].getTotalFrames());
 
             for(int textureID : textureIDs) {
                 enemy.getModel().addTextureID(textureID);
@@ -449,6 +451,10 @@ public class Engine {
 
     public List<GameObject> getGameObjects() {
         return gameObjects;
+    }
+
+    public void addGameObject(GameObject gameObject) {
+        gameObjects.add(gameObject);
     }
 
     public Loader getLoader() {

@@ -23,6 +23,14 @@ public class Actor extends GameObject {
         return gold;
     }
 
+    public Shooter getShooter() {
+        return shooter;
+    }
+
+    public void setShooter(Shooter shooter) {
+        this.shooter = shooter;
+    }
+
     public Ai getAi() {
         return ai;
     }
@@ -58,12 +66,9 @@ public class Actor extends GameObject {
     }
 
     @Override
-    public void update(List<GameObject> gameObjects) {
-        super.update(gameObjects);
+    public void update() {
+        super.update();
 
-        if (shooter != null) {
-            shooter.update();
-        }
         if (ai != null) {
             ai.update();
         }

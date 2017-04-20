@@ -104,7 +104,7 @@ public class GameObject {
         this.gui = gui;
     }
 
-    public void update(List<GameObject> gameObjects) {
+    public void update() {
         if (isDestroyed()) throw new RuntimeException("Can't update object because its destroyed!");
     }
 

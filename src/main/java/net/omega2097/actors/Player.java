@@ -1,6 +1,7 @@
 package net.omega2097.actors;
 
 import net.omega2097.*;
+import net.omega2097.util.Util;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -16,6 +17,7 @@ public class Player extends Actor {
     public Player() {
         super();
         this.shooter = new Shooter(this);
+        setSolid(true);
     }
 
     public Camera getCamera() {
@@ -42,8 +44,8 @@ public class Player extends Actor {
     }
 
     @Override
-    public void update(List<GameObject> gameObjects) {
-        super.update(gameObjects);
+    public void update() {
+        super.update();
 
         boolean updated = false;
         camera.setUpdated(false);
@@ -75,7 +77,17 @@ public class Player extends Actor {
         }
         if (KeyboardHandler.isKeyDown(GLFW_KEY_Z)
                 || (mouseInput.isButtonDown(GLFW_MOUSE_BUTTON_1) && mouseInput.isMouseClickedInWindow())) {
-            shooter.shoot(gameObjects);
+
+            Vector3f dirInRadians = getDirectionInRadians();
+            float angleY = dirInRadians.y;
+            float angleX = dirInRadians.x;
+            Vector3f tmpDir = new Vector3f(0, 0, -1);
+
+            tmpDir = Util.rotateX(tmpDir, angleX);
+            tmpDir = Util.rotateY(tmpDir, angleY);
+            Vector3f rayDirection = tmpDir.normalise(null);
+
+            shooter.shoot(rayDirection);
         }
         if (KeyboardHandler.isKeyDown(GLFW_KEY_X)) {
             System.out.println("pos: " + position + ", dir: " + getDirection() + ", bbox: " + getCollider().getBox().getPosition() + ", camRot: " + camera.getRotation());
@@ -89,6 +101,7 @@ public class Player extends Actor {
         updateCameraPosition();
         camera.setUpdated(updated);
         updateColliderPosition();
+        shooter.update();
     }
 
     @Override

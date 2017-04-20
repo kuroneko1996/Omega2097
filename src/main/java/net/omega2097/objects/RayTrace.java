@@ -30,7 +30,7 @@ public class RayTrace extends GameObject {
     }
 
     @Override
-    public void update(List<GameObject> gameObjects) {
+    public void update() {
         if (System.currentTimeMillis() > timeCreated + TIME_TO_DESTROY) {
             destroy();
         }

@@ -16,7 +16,7 @@ public class Shooter {
     private Actor owner;
     private boolean isShooting;
     private long shootStartTime;
-    private final static int SHOOT_DELAY = 250;
+    private long shootDelay = 250;
 
     public Shooter(Actor owner) {
         this.owner = owner;
@@ -24,32 +24,38 @@ public class Shooter {
         this.shootStartTime = 0;
     }
 
-    public void shoot(List<GameObject> gameObjects) {
-        if (this.isShooting) return;
+    public long getShootDelay() {
+        return shootDelay;
+    }
+
+    public void setShootDelay(long shootDelay) {
+        this.shootDelay = shootDelay;
+    }
+
+    void shoot(Vector3f rayDirection) {
+        if (isShooting) return;
 
         isShooting = true;
         shootStartTime = System.currentTimeMillis();
+        List<GameObject> gameObjects = Engine.getInstance().getGameObjects();
 
-        Vector3f ownerDirInRadians = owner.getDirectionInRadians();
         Vector3f rayOrigin = new Vector3f(owner.getPosition());
 
-        float angleY = ownerDirInRadians.y;
-        float angleX = ownerDirInRadians.x;
-        Vector3f tmpDir = new Vector3f(0, 0, -1);
-
-        tmpDir = Util.rotateX(tmpDir, angleX);
-        tmpDir = Util.rotateY(tmpDir, angleY);
-        Vector3f rayDirection = tmpDir.normalise(null);
-
         final Vector3f hitCoord = new Vector3f(0,0,0);
+        System.out.println(owner.getName() + " is shooting.");
 
         // sort by distance
         java.util.Map<Float, GameObject> objectsMap = new TreeMap<>();
         for(GameObject gameObject : gameObjects) {
-            if (gameObject.getCollider() != null) {
+            if (gameObject.getCollider() != null && gameObject != owner) {
                 float distance = Vector3f.sub(gameObject.getPosition(), rayOrigin, null).length();
                 objectsMap.put(distance, gameObject);
             }
+        }
+        if ( !(owner instanceof Player) ) {
+            GameObject player = Engine.getInstance().getPlayer();
+            float distance = Vector3f.sub(player.getPosition(), rayOrigin, null).length();
+            objectsMap.put(distance, player);
         }
 
         // check intersections
@@ -69,9 +75,9 @@ public class Shooter {
             GameObject hitGameObject = mapEntry.get().getValue();
             BulletImpact bulletImpact = BulletImpact.create(hitCoord, Engine.getInstance().getPrimGen(),
                     Engine.getInstance().getLoader());
-            gameObjects.add(bulletImpact);
+            Engine.getInstance().addGameObject(bulletImpact);
 
-            System.out.println(hitGameObject.getName() + " has been shot at " + hitCoord);
+            System.out.println(hitGameObject.getName() + " has been shot at " + hitCoord + ", dst: " + mapEntry.get().getKey());
             if (hitGameObject instanceof Actor) {
                 Actor actor = (Actor)hitGameObject;
                 actor.takeDamage(10);
@@ -89,7 +95,7 @@ public class Shooter {
 
     void update() {
         if (isShooting) {
-            if (System.currentTimeMillis() > (shootStartTime + SHOOT_DELAY) ) {
+            if (System.currentTimeMillis() > (shootStartTime + shootDelay) ) {
                 isShooting = false;
             }
         }

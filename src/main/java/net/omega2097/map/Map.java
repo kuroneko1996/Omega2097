@@ -2,6 +2,7 @@ package net.omega2097.map;
 
 import net.omega2097.actors.Actor;
 import net.omega2097.actors.EnemyAi;
+import net.omega2097.actors.Shooter;
 import net.omega2097.objects.Medkit;
 import net.omega2097.objects.Treasure;
 import net.omega2097.util.IRandom;
@@ -71,12 +72,17 @@ public class Map implements IMap {
                 gameObject.getHealth().setMax(25f).setCurrent(25f);
                 gameObject.setPosition(x, 0.5f, y);
                 gameObject.setSolid(true);
-                gameObject.setAi(new EnemyAi(gameObject));
+                EnemyAi enemyAi = new EnemyAi(gameObject);
+                gameObject.setAi(enemyAi);
                 // TODO set orientation
 
-                if (enemyType == 0) {
+                if (enemyType == 0) { // GUARD
+                    enemyAi.setChasingStopDistance(3f);
+                    Shooter shooter = new Shooter(gameObject);
+                    gameObject.setShooter(shooter);
                     guards.add(gameObject);
-                } else {
+                } else { // DOG
+                    enemyAi.setChasingStopDistance(1f);
                     dogs.add(gameObject);
                 }
                 tile.setObject(true);

@@ -14,11 +14,12 @@ public class EnemyAi extends Ai {
         DYING,
         DEAD
     }
-    private static final long ATTACK_DURATION = 1000; // after chasing
+    private static final long ATTACK_DURATION = 2000;
+    private static final long CHASE_TO_ATTACK_TIME = 500;
     private static final long DYING_DURATION = 250 * 3;
     private long lastStateChangeTime;
 
-    private static final float CHASING_STOP_DISTANCE = 1.25f;
+    private float chasingStopDistance = 2f;
     private static final float MOVEMENT_SPEED = 0.02f;
     private static final float FIELD_OF_VIEW_HALVED = 60;
     private static final float MAX_DISTANCE_TO_SEE = 6;
@@ -39,7 +40,11 @@ public class EnemyAi extends Ai {
         this.animations = animations;
     }
 
-    public void setState(State state) {
+    public void setChasingStopDistance(float chasingStopDistance) {
+        this.chasingStopDistance = chasingStopDistance;
+    }
+
+    private void setState(State state) {
         this.state = state;
         lastStateChangeTime = System.currentTimeMillis();
         for(Animation animation : animations) {
@@ -72,12 +77,11 @@ public class EnemyAi extends Ai {
 
         updateAnimation();
 
-
         Vector3f ownerToTarget = Vector3f.sub(target.getPosition(), owner.getPosition(), null);
         float distance = ownerToTarget.length();
         Vector3f ownerToTargetNormalized = ownerToTarget.normalise(null); // TODO divide by distance
 
-        if (distance > CHASING_STOP_DISTANCE) {
+        if (distance > chasingStopDistance) {
             float moveAmount = MOVEMENT_SPEED;
             Vector3f movement = new Vector3f(ownerToTargetNormalized.x * moveAmount,
                     0, ownerToTargetNormalized.z * moveAmount);
@@ -87,7 +91,7 @@ public class EnemyAi extends Ai {
                 owner.setPosition(newPosition.x, newPosition.y, newPosition.z);
             }
 
-        } else {
+        } else if ((System.currentTimeMillis() - lastStateChangeTime) > CHASE_TO_ATTACK_TIME) {
             setState(State.ATTACKING);
         }
     }
@@ -97,6 +101,15 @@ public class EnemyAi extends Ai {
 
         if ((System.currentTimeMillis() - lastStateChangeTime) > ATTACK_DURATION) {
             setState(State.CHASING);
+        } else {
+            Shooter shooter = owner.getShooter();
+            if ( shooter != null && target != null ) {
+                Vector3f shootDirection = Vector3f.sub(target.getPosition(), owner.getPosition(), null);
+                shootDirection = shootDirection.normalise(null);
+
+                shooter.update();
+                shooter.shoot(shootDirection); // TODO FIX sync issue, add random angle error
+            }
         }
     }
 
