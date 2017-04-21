@@ -17,7 +17,9 @@ public class EnemyAi extends Ai {
     private static final long ATTACK_DURATION = 2000;
     private static final long CHASE_TO_ATTACK_TIME = 500;
     private static final long DYING_DURATION = 250 * 3;
+    private static final long LOOK_DELAY = 500;
     private long lastStateChangeTime;
+    private long lastLookTime;
 
     private float chasingStopDistance = 2f;
     private static final float MOVEMENT_SPEED = 0.02f;
@@ -33,7 +35,7 @@ public class EnemyAi extends Ai {
         this.state = State.IDLE;
         this.target = null;
 
-        // TODO explicitly map states to animations
+        // TODO explicitly map states to animations and remove ordinal
     }
 
     public void setAnimations(Animation[] animations) {
@@ -61,11 +63,13 @@ public class EnemyAi extends Ai {
     private void updateIdle() {
         updateAnimation();
 
-        // TODO prevent constantly checking
-        GameObject player = Engine.getInstance().getPlayer();
-        if (canSee(player)) {
-            setState(State.CHASING);
-            this.target = player;
+        if ( (System.currentTimeMillis() - lastLookTime)  > LOOK_DELAY ) {
+            lastLookTime = System.currentTimeMillis();
+            GameObject player = Engine.getInstance().getPlayer();
+            if (canSee(player)) {
+                setState(State.CHASING);
+                this.target = player;
+            }
         }
     }
 
@@ -86,10 +90,8 @@ public class EnemyAi extends Ai {
             Vector3f movement = new Vector3f(ownerToTargetNormalized.x * moveAmount,
                     0, ownerToTargetNormalized.z * moveAmount);
 
-            if (true) {
-                Vector3f newPosition = Vector3f.add(owner.getPosition(), movement, null);
-                owner.setPosition(newPosition.x, newPosition.y, newPosition.z);
-            }
+            Vector3f newPosition = Vector3f.add(owner.getPosition(), movement, null);
+            owner.setPosition(newPosition.x, newPosition.y, newPosition.z);
 
         } else if ((System.currentTimeMillis() - lastStateChangeTime) > CHASE_TO_ATTACK_TIME) {
             setState(State.ATTACKING);

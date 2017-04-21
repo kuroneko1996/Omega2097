@@ -12,7 +12,7 @@ uniform vec3 vertexPosition_worldspace; // Position of the center of the gui wor
 
 void main()
 {
-    gl_Position.xy = squareVertices.xy;
+    gl_Position = projectionMatrix * vec4(squareVertices, 1.0);
 
     passed_texcoords = texcoords;
 }

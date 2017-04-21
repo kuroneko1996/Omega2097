@@ -22,10 +22,14 @@ public class MeshRenderer {
     private Matrix4f projectionMatrix;
     private Matrix4f guiProjectionMatrix;
     private Matrix4f transformationMatrix;
-    private float aspectRatio;
+    private float screenAspectRatio;
+    private float screenWidth;
+    private float screenHeight;
 
-    public MeshRenderer(float aspectRatio) {
-        this.aspectRatio = aspectRatio;
+    public MeshRenderer(float screenWidth, float screenHeight) {
+        this.screenWidth = screenWidth;
+        this.screenHeight = screenHeight;
+        this.screenAspectRatio = screenWidth / screenHeight;
         createProjectionMatrix();
         createTransformationMatrix();
         createGuiProjectionMatrix();
@@ -101,8 +105,8 @@ public class MeshRenderer {
     }
 
     private void createProjectionMatrix() {
-        float yScale = (float)((1f / Math.tan(Math.toRadians(FOV / 2f))) * aspectRatio);
-        float xScale = yScale / aspectRatio;
+        float yScale = (float)((1f / Math.tan(Math.toRadians(FOV / 2f))) * screenAspectRatio);
+        float xScale = yScale / screenAspectRatio;
         float frustumLength = FAR_PLANE - NEAR_PLANE;
 
         projectionMatrix = new Matrix4f();
@@ -115,16 +119,25 @@ public class MeshRenderer {
     }
 
     private void createGuiProjectionMatrix() {
-        float yScale = aspectRatio;
-        float xScale = yScale / aspectRatio;
+        float left = 0f;
+        float right = screenWidth;
+        float bottom = 0;
+        float top = screenHeight;
+
+        float zNear = -1f;
+        float zFar = 1f;
 
         guiProjectionMatrix = new Matrix4f();
-        guiProjectionMatrix.m00 = xScale;
-        guiProjectionMatrix.m11 = yScale;
-        guiProjectionMatrix.m22 = 0;
-        guiProjectionMatrix.m23 = 1;
-        guiProjectionMatrix.m32 = 0;
-        guiProjectionMatrix.m33 = 1;
+        guiProjectionMatrix.setIdentity();
+
+        guiProjectionMatrix.m00 = 2.0f / (right - left);
+        guiProjectionMatrix.m11 = 2.0f / (top - bottom);
+        guiProjectionMatrix.m22 = - 2.0f / (zFar - zNear);
+        guiProjectionMatrix.m33 = 1.0f;
+
+        guiProjectionMatrix.m30 = - (right + left) / (right - left);
+        guiProjectionMatrix.m31 = - (top + bottom) / (top - bottom);
+        guiProjectionMatrix.m32 = - (zFar + zNear) / (zFar - zNear);
     }
 
     private void createTransformationMatrix() {

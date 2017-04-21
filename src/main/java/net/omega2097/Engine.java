@@ -69,15 +69,13 @@ public class Engine {
         this.mouseInput = mouseInput;
         this.window = window;
 
-        float aspectRatio = (float)window.width / (float)window.height;
-
         lastLoopTime = getTime();
         lastTime = getTime();
 
         shader = new StaticShader();
         billboardShader = new BillboardShader();
         guiShader = new GuiShader();
-        renderer = new MeshRenderer(aspectRatio);
+        renderer = new MeshRenderer((float)window.width, (float)window.height);
         camera = new Camera();
         primGen = new PrimitivesGenerator(loader);
 
@@ -119,7 +117,9 @@ public class Engine {
         }
     }
     private void render() {
+        //GL11.glFrontFace(GL11.GL_CW);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
+        //GL11.glEnable(GL11.GL_CULL_FACE);
 
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -191,6 +191,7 @@ public class Engine {
         addMedkits(map, primGen);
         addTreasures(map, primGen);
         addPlayer();
+        addGui();
         System.out.println("Total " + gameObjects.size() + " game objects have been created");
         printMap(map);
 
@@ -259,13 +260,37 @@ public class Engine {
         System.out.println("Start at " + startTile.getX() + ", " + startTile.getY());
         player.setPosition(startTile.getX() + 0.5f, 0.5f, startTile.getY() + 0.5f);
 
+    }
+
+    private void addGui() {
+        float screenCenterX = window.width / 2f;
+        float screenCenterY = window.height / 2f;
+        float xScale = (float)window.height / (float)window.width;
+        float yScale = (float)window.width / (float)window.height;
+
+        float gunTextureSize = 64;
+        float gunTextureSizeX = gunTextureSize * 2 * xScale;
+        float gunTextureSizeY = gunTextureSize * 2 * yScale;
+        float gunX1 = screenCenterX - gunTextureSizeX;
+        float gunX2 = screenCenterX + gunTextureSizeX;
+        float gunY1 = 80;
+        float gunY2 = 80 + gunTextureSizeY;
+
         GameObject gun = new GameObject();
-        gun.setModel(primGen.generateVerticalQuad(1,1));
+        gun.setModel(primGen.generateRectangle(gunX1, gunY1,
+                gunX2, gunY2, 0));
         gun.setGui(true);
         gun.setTextureName("textures/gui/weapons/pistol.png");
         gun.getModel().addTextureID(loader.loadTexture("res/" + gun.getTextureName()));
         gameObjects.add(gun);
         player.setGun(gun);
+
+        GameObject hud = new GameObject();
+        hud.setModel(primGen.generateRectangle(0,0, window.width, 80, 0, 0, 280f/320f, 1, 1));
+        hud.setGui(true);
+        hud.setTextureName("textures/gui/hud.png");
+        hud.getModel().addTextureID(loader.loadTexture("res/" + hud.getTextureName()));
+        gameObjects.add(hud);
     }
 
     private void addDogs(Map map, PrimitivesGenerator primGen) {
