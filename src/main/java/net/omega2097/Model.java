@@ -1,5 +1,7 @@
 package net.omega2097;
 
+import net.omega2097.util.Mesh;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,11 +11,20 @@ public class Model {
     private int iboID; // indexed buffer
     private int uvboID; // uv buffer
 
+    private Mesh mesh;
     private int vertexCount;
     private int textureID;
     private boolean textured = false; // doesn't have uv coordinates
     private List<Integer> textureIDs = new ArrayList<>();
     private int currentTexture = 0;
+
+    public Mesh getMesh() {
+        return mesh;
+    }
+
+    public void setMesh(Mesh mesh) {
+        this.mesh = mesh;
+    }
 
     public int getVboID() {
         return vboID;

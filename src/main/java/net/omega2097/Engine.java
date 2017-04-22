@@ -8,13 +8,12 @@ import net.omega2097.map.RandomRoomGenerator;
 import net.omega2097.map.Tile;
 import net.omega2097.shaders.BillboardShader;
 import net.omega2097.shaders.GuiShader;
-import net.omega2097.util.PrimitivesGenerator;
+import net.omega2097.util.*;
 import net.omega2097.util.Random;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import net.omega2097.shaders.StaticShader;
-import net.omega2097.util.Util;
 
 import java.util.*;
 

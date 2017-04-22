@@ -15,19 +15,22 @@ import java.util.List;
 import java.util.Map;
 
 public class Loader {
+    public final static int POSITIONS_INDEX = 0;
+    public final static int UV_INDEX = 1;
+
     private List<Integer> vaos = new ArrayList<>();
     private List<Integer> vbos = new ArrayList<>();
     private Map<String, Integer> textures = new HashMap<>();
 
-    public Model loadToVAO(float[] positions, float[] textureCoordinates, int[] indices) {
+    Model loadToVAO(float[] positions, float[] textureCoordinates, int[] indices) {
         int vaoID = createVAO();
         int iboID = bindIndicesBuffer(indices);
 
         Model model = new Model(vaoID, iboID, indices.length);
-        int vboID = storeDataInAttributes(0, 3, positions);
+        int vboID = storeDataInAttributes(POSITIONS_INDEX, 3, positions);
         model.setVboID(vboID);
         if (textureCoordinates != null && textureCoordinates.length > 0) {
-            int uvboID = storeDataInAttributes(1, 2, textureCoordinates);
+            int uvboID = storeDataInAttributes(UV_INDEX, 2, textureCoordinates);
             model.setUvboID(uvboID);
             model.setTextured(true);
         }
@@ -37,7 +40,26 @@ public class Loader {
     }
 
     public Model loadToVAO(Mesh mesh) {
-        return loadToVAO(mesh.getVerticesArray(), mesh.getUvArray(), mesh.getTriangles());
+        Model model = loadToVAO(mesh.getVerticesArray(), mesh.getUvArray(), mesh.getTriangles());
+        model.setMesh(mesh);
+        return model;
+    }
+
+    public Model updateModelInVAO(Model model, Mesh mesh) {
+        GL30.glBindVertexArray(model.getVaoID());
+
+        updateIndicesBuffer(model.getIboID(), mesh.getTriangles());
+        updateDataInAttributes(model.getVboID(), POSITIONS_INDEX, 3, mesh.getVerticesArray());
+        if (mesh.getUv().length > 0) {
+            model.setTextured(true);
+            updateDataInAttributes(model.getUvboID(), UV_INDEX, 2, mesh.getUvArray());
+        } else {
+            model.setTextured(false);
+        }
+        unbindVAO();
+
+        model.setMesh(mesh);
+        return model;
     }
 
     public int loadTexture(String fileName) {
