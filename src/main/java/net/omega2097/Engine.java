@@ -44,7 +44,11 @@ public class Engine {
     private Window window;
     private StringBuilder windowTitle = new StringBuilder(64);
     private MouseInput mouseInput;
-    private List<GameObject> billboardObjectsToRender = new ArrayList<>();
+
+    private java.util.Map<Model, List<GameObject>> staticEntities = new HashMap<>();
+    private java.util.Map<Model, List<GameObject>> billboardEntities = new HashMap<>();
+    private java.util.Map<Model, List<GameObject>> guiEntities = new HashMap<>();
+
     private Game game;
 
     private Engine() {}
@@ -115,6 +119,36 @@ public class Engine {
             glfwSetCursorPos(window.id, window.width / 2.0f, window.height / 2.0f);
         }
     }
+
+    private void prepareRenderLists() {
+        staticEntities.clear();
+        guiEntities.clear();
+        billboardEntities.clear();
+
+        for(GameObject gameObject: gameObjects) {
+            Model model = gameObject.getModel();
+
+            java.util.Map<Model, List<GameObject>> currentStorage;
+
+            if (model.isBillboard()) {
+                currentStorage = billboardEntities;
+            } else if (model.isGui()) {
+                currentStorage = guiEntities;
+            } else {
+                currentStorage = staticEntities;
+            }
+
+            List<GameObject> batch = currentStorage.get(model);
+            if (batch == null) {
+                List<GameObject> newBatch = new ArrayList<>();
+                newBatch.add(gameObject);
+                currentStorage.put(model, newBatch);
+            } else {
+                batch.add(gameObject);
+            }
+        }
+    }
+
     private void render() {
         //GL11.glFrontFace(GL11.GL_CW);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
@@ -126,47 +160,34 @@ public class Engine {
         GL11.glClearColor(0,0,0,1);
         GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear frame/depth buffer
 
-        billboardObjectsToRender.clear();
-        for(GameObject gameObject: gameObjects) {
-            if (gameObject.isBillboard()) {
-                billboardObjectsToRender.add(gameObject);
-            } else if (!gameObject.isGui()) {
-                renderer.render(gameObject, shader, viewMatrix);
-            }
-        }
-
+        renderer.batchRender(staticEntities, viewMatrix, shader);
         renderBillboards();
-        renderGui();
+        renderer.renderGui(guiEntities, viewMatrix, guiShader);
 
         glfwSwapBuffers(window.id);
     }
 
     private void renderBillboards() {
         // sort and render billboards
-        java.util.Map<Float, GameObject> sortedMap = new TreeMap<>(Comparator.reverseOrder());
+        java.util.TreeMap<Float, GameObject> sortedMap = new TreeMap<>(Comparator.reverseOrder());
 
         Vector3f cameraPosition = camera.getPosition();
         // calc distance to camera
-        for(GameObject gameObject: billboardObjectsToRender) {
-            Vector3f position = gameObject.getPosition();
-            float distance = (float)Math.sqrt( (cameraPosition.x - position.x) * (cameraPosition.x - position.x)
-                    + (cameraPosition.z - position.z) * (cameraPosition.z - position.z)
-            );
-            sortedMap.put(distance, gameObject);
-        }
 
-        sortedMap.forEach((k, gameObject) -> {
-            renderer.renderBillBoard(gameObject, billboardShader, viewMatrix);
-        });
-    }
-
-    private void renderGui() {
-        for(GameObject gameObject: gameObjects) {
-            if (gameObject.isGui()) {
-                renderer.renderGui(gameObject, guiShader, viewMatrix);
+        for (Model model : billboardEntities.keySet()) {
+            List<GameObject> batch = billboardEntities.get(model);
+            for (GameObject gameObject : batch) {
+                Vector3f position = gameObject.getPosition();
+                float distance = (float) Math.sqrt((cameraPosition.x - position.x) * (cameraPosition.x - position.x)
+                        + (cameraPosition.z - position.z) * (cameraPosition.z - position.z)
+                );
+                sortedMap.put(distance, gameObject);
             }
         }
+
+        renderer.renderBillBoards(sortedMap, viewMatrix, billboardShader);
     }
+
 
     private void loadLevel() {
         toRemove.clear();
@@ -195,10 +216,16 @@ public class Engine {
         printMap(map);
 
         Util.updateViewMatrix(viewMatrix, camera.getPosition(), camera.getPitch(), camera.getYaw()); // prevent black screen
+
+        prepareRenderLists();
     }
 
     private void addWalls() {
         // generate game objects
+        String textureName = "w_wall1.png";
+        Model model = primGen.generateCube(1);
+        model.addTextureID(loader.loadTexture("res/" + textureName));
+
         for (int x = 0; x < map.getWidth(); x++) {
             for (int y = 0; y < map.getHeight(); y++) {
                 Tile tile = map.getTileAt(x, y);
@@ -206,10 +233,9 @@ public class Engine {
                     GameObject gameObject = new GameObject();
                     gameObject.setName("Wall x=" + x + ", y=" + y);
                     gameObject.setSolid(true);
-                    gameObject.setModel(primGen.generateCube(1));
+                    gameObject.setModel(model);
                     gameObject.setPosition(x, 0.5f, y);
-                    gameObject.setTextureName("w_wall1.png");
-                    gameObject.getModel().addTextureID(loader.loadTexture("res/" + gameObject.getTextureName()));
+                    gameObject.setTextureName(textureName);
 
                     Vector3f bboxSize = new Vector3f(1,1,1);
                     Vector3f bboxCoord = new Vector3f(gameObject.getPosition().x - 0.5f,
@@ -278,7 +304,7 @@ public class Engine {
         GameObject gun = new GameObject();
         gun.setModel(primGen.generateRectangle(gunX1, gunY1,
                 gunX2, gunY2, 0));
-        gun.setGui(true);
+        gun.getModel().setGui(true);
         gun.setTextureName("textures/gui/weapons/pistol.png");
         gun.getModel().addTextureID(loader.loadTexture("res/" + gun.getTextureName()));
         gameObjects.add(gun);
@@ -286,7 +312,7 @@ public class Engine {
 
         GameObject hud = new GameObject();
         hud.setModel(primGen.generateRectangle(0,0, window.width, 80, 0, 0, 280f/320f, 1, 1));
-        hud.setGui(true);
+        hud.getModel().setGui(true);
         hud.setTextureName("textures/gui/hud.png");
         hud.getModel().addTextureID(loader.loadTexture("res/" + hud.getTextureName()));
         gameObjects.add(hud);
@@ -315,7 +341,7 @@ public class Engine {
             Actor enemy = map.getDogs().get(i);
             enemy.setName("Dog " + i);
             enemy.setModel(primGen.generateVerticalQuad(1,1));
-            enemy.setBillboard(true);
+            enemy.getModel().setBillboard(true);
             enemy.setTextureName("textures/dog/idle.png");
             EnemyAi enemyAi = (EnemyAi)enemy.getAi();
             enemyAi.setAnimations(animations);
@@ -357,7 +383,7 @@ public class Engine {
             Actor enemy = map.getGuards().get(i);
             enemy.setName("Guard " + i);
             enemy.setModel(primGen.generateVerticalQuad(1,1));
-            enemy.setBillboard(true);
+            enemy.getModel().setBillboard(true);
             enemy.setTextureName("textures/guard/walk_0.png");
             EnemyAi enemyAi = (EnemyAi)enemy.getAi();
             enemyAi.setAnimations(animations);
@@ -381,7 +407,7 @@ public class Engine {
             GameObject medkit = map.getMedkits().get(i);
             medkit.setName("Medkit " + i);
             medkit.setModel(primGen.generateVerticalQuad(1, 1));
-            medkit.setBillboard(true);
+            medkit.getModel().setBillboard(true);
             medkit.setTextureName("textures/objects/medkit.png");
             medkit.getModel().addTextureID(loader.loadTexture("res/" + medkit.getTextureName()));
 
@@ -399,7 +425,7 @@ public class Engine {
             GameObject treasure = map.getTreasures().get(i);
             treasure.setName("Treasure " + i);
             treasure.setModel(primGen.generateVerticalQuad(1, 1));
-            treasure.setBillboard(true);
+            treasure.getModel().setBillboard(true);
             treasure.setTextureName("textures/objects/chalice.png");
             treasure.getModel().addTextureID(loader.loadTexture("res/" + treasure.getTextureName()));
 

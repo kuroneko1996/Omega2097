@@ -7,8 +7,6 @@ import java.util.List;
 public class GameObject {
     private String name = "GameObject";
     private Model model;
-    private boolean billboard = false;
-    private boolean gui = false;
     private boolean destroyed = false;
     private boolean solid = false;
 
@@ -86,22 +84,6 @@ public class GameObject {
 
     public void setScale(float x, float y, float z) {
         this.scale.set(x, y, z);
-    }
-
-    public boolean isBillboard() {
-        return billboard;
-    }
-
-    public void setBillboard(boolean billboard) {
-        this.billboard = billboard;
-    }
-
-    public boolean isGui() {
-        return gui;
-    }
-
-    public void setGui(boolean gui) {
-        this.gui = gui;
     }
 
     public void update() {

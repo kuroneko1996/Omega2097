@@ -18,6 +18,25 @@ public class Model {
     private List<Integer> textureIDs = new ArrayList<>();
     private int currentTexture = 0;
 
+    private boolean billboard = false;
+    private boolean gui = false;
+
+    public boolean isBillboard() {
+        return billboard;
+    }
+
+    public void setBillboard(boolean billboard) {
+        this.billboard = billboard;
+    }
+
+    public boolean isGui() {
+        return gui;
+    }
+
+    public void setGui(boolean gui) {
+        this.gui = gui;
+    }
+
     public Mesh getMesh() {
         return mesh;
     }

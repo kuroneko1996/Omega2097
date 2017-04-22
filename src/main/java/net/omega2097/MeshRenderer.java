@@ -2,12 +2,15 @@ package net.omega2097;
 
 import net.omega2097.shaders.BillboardShader;
 import net.omega2097.shaders.GuiShader;
+import net.omega2097.shaders.ShaderProgram;
 import org.lwjgl.opengl.*;
 import org.lwjgl.util.vector.Matrix4f;
 import net.omega2097.shaders.StaticShader;
 import net.omega2097.util.Util;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
+
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 
@@ -46,42 +49,86 @@ public class MeshRenderer {
         shader.stop();
     }
 
-    public void renderBillBoard(GameObject gameObject, BillboardShader shader, Matrix4f viewMatrix) {
-        Model model = gameObject.getModel();
-        Vector3f billboardCenter = new Vector3f(gameObject.getPosition());
-        Vector2f billboardSize = new Vector2f(1,1);
+    void batchRender(java.util.Map<Model, List<GameObject>> renderEntities, Matrix4f viewMatrix, StaticShader shader) {
+        shader.start();
+
+        shader.loadViewMatrix(viewMatrix);
+        shader.loadProjectionMatrix(projectionMatrix);
+
+        for (Model model : renderEntities.keySet()) {
+            List<GameObject> batch = renderEntities.get(model);
+            int vertexCount = model.getVertexCount();
+
+            prepareRender(model);
+
+            for (GameObject gameObject : batch) {
+                Util.updateTransformationMatrix(transformationMatrix, gameObject.getPosition(),
+                        gameObject.getRotation(), gameObject.getScale());
+                shader.loadTransformationMatrix(transformationMatrix);
+                doRender(vertexCount);
+            }
+
+            cleanupRender(model);
+        }
+
+        shader.stop();
+    }
+
+    // TODO not optimized yet
+    void renderBillBoards(java.util.TreeMap<Float, GameObject> batch, Matrix4f viewMatrix, BillboardShader shader) {
+        if (batch.size() == 0) return;
+
         Vector3f cameraRight = new Vector3f(viewMatrix.m00, viewMatrix.m10, viewMatrix.m20);
         Vector3f cameraUp = new Vector3f(viewMatrix.m01, viewMatrix.m11, viewMatrix.m21);
-
 
         shader.start();
         // load uniforms
         shader.loadViewMatrix(viewMatrix);
         shader.loadProjectionMatrix(projectionMatrix);
         shader.loadCameraVectors(cameraRight, cameraUp);
-        shader.loadBillboard(billboardCenter, billboardSize);
 
-        glRenderAndCleanUp(model);
+        batch.forEach((k, gameObject) -> {
+            Model model = gameObject.getModel();
+            int vertexCount = model.getVertexCount();
+            prepareRender(model);
 
+            Vector3f billboardCenter = new Vector3f(gameObject.getPosition());
+            Vector2f billboardSize = new Vector2f(1,1);
+            shader.loadBillboard(billboardCenter, billboardSize);
+
+            doRender(vertexCount);
+
+            cleanupRender(model);
+        });
         shader.stop();
     }
 
-    public void renderGui(GameObject gameObject, GuiShader shader, Matrix4f viewMatrix) {
-        Model model = gameObject.getModel();
-        Vector3f guiCenter = gameObject.getPosition();
-
+    public void renderGui(java.util.Map<Model, List<GameObject>> renderEntities, Matrix4f viewMatrix, GuiShader shader) {
         shader.start();
         // load uniforms
         shader.loadViewMatrix(viewMatrix);
         shader.loadProjectionMatrix(guiProjectionMatrix);
-        shader.loadGuiCenter(guiCenter.x, guiCenter.y, guiCenter.z);
 
-        glRenderAndCleanUp(model);
+        for (Model model : renderEntities.keySet()) {
+            List<GameObject> batch = renderEntities.get(model);
+            int vertexCount = model.getVertexCount();
+
+            prepareRender(model);
+
+            for (GameObject gameObject : batch) {
+                Vector3f guiCenter = gameObject.getPosition();
+                shader.loadGuiCenter(guiCenter.x, guiCenter.y, guiCenter.z);
+
+                doRender(vertexCount);
+            }
+
+            cleanupRender(model);
+        }
 
         shader.stop();
     }
 
-    private void glRenderAndCleanUp(Model model) {
+    private void prepareRender(Model model) {
         GL30.glBindVertexArray(model.getVaoID());
         GL20.glEnableVertexAttribArray(0);
 
@@ -92,8 +139,9 @@ public class MeshRenderer {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, model.getTextureID());
 
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, model.getIboID());
-        GL11.glDrawElements(GL11.GL_TRIANGLES, model.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+    }
 
+    private void cleanupRender(Model model) {
         // clean up
         // unbind IBO
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER,0);
@@ -103,6 +151,16 @@ public class MeshRenderer {
             GL20.glDisableVertexAttribArray(1);
         }
         GL30.glBindVertexArray(0);
+    }
+
+    private void doRender(int vertexCount) {
+        GL11.glDrawElements(GL11.GL_TRIANGLES, vertexCount, GL11.GL_UNSIGNED_INT, 0);
+    }
+
+    private void glRenderAndCleanUp(Model model) {
+        prepareRender(model);
+        doRender(model.getVertexCount());
+        cleanupRender(model);
     }
 
     private void createProjectionMatrix() {
