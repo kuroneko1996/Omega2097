@@ -35,7 +35,7 @@ public class PrimitivesGenerator {
 
         Mesh mesh = builder.createMesh();
 
-        return loader.loadToVAO(mesh.getVerticesArray(), mesh.getUvArray(), mesh.getTriangles());
+        return loader.loadToVAO(mesh);
     }
 
     public Model generateVerticalQuad(int width, int height) {
@@ -62,7 +62,7 @@ public class PrimitivesGenerator {
 
         Mesh mesh = builder.createMesh();
 
-        return loader.loadToVAO(mesh.getVerticesArray(), mesh.getUvArray(), mesh.getTriangles());
+        return loader.loadToVAO(mesh);
     }
 
     public Model generateRectangle(float x1, float y1, float x2, float y2, float z) {
@@ -85,7 +85,7 @@ public class PrimitivesGenerator {
 
         Mesh mesh = builder.createMesh();
 
-        return loader.loadToVAO(mesh.getVerticesArray(), mesh.getUvArray(), mesh.getTriangles());
+        return loader.loadToVAO(mesh);
     }
 
     public Model generateBox(float width, float height, float depth) {
@@ -140,7 +140,7 @@ public class PrimitivesGenerator {
                 Vector3f.sub(new Vector3f(0,0,0), upDir, null));
 
         Mesh mesh = builder.createMesh();
-        return loader.loadToVAO(mesh.getVerticesArray(), mesh.getUvArray(), mesh.getTriangles());
+        return loader.loadToVAO(mesh);
     }
 
     public Model generateCube(float size) {

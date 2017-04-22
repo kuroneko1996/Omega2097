@@ -1,5 +1,6 @@
 package net.omega2097;
 
+import net.omega2097.util.Mesh;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
@@ -21,16 +22,22 @@ public class Loader {
     public Model loadToVAO(float[] positions, float[] textureCoordinates, int[] indices) {
         int vaoID = createVAO();
         int iboID = bindIndicesBuffer(indices);
-        Model model = new Model(vaoID, iboID, indices.length);
 
-        storeDataInAttributes(0, 3, positions);
+        Model model = new Model(vaoID, iboID, indices.length);
+        int vboID = storeDataInAttributes(0, 3, positions);
+        model.setVboID(vboID);
         if (textureCoordinates != null && textureCoordinates.length > 0) {
-            storeDataInAttributes(1, 2, textureCoordinates);
+            int uvboID = storeDataInAttributes(1, 2, textureCoordinates);
+            model.setUvboID(uvboID);
             model.setTextured(true);
         }
 
         unbindVAO();
         return model;
+    }
+
+    public Model loadToVAO(Mesh mesh) {
+        return loadToVAO(mesh.getVerticesArray(), mesh.getUvArray(), mesh.getTriangles());
     }
 
     public int loadTexture(String fileName) {
@@ -93,27 +100,22 @@ public class Loader {
         return vaoID;
     }
 
-    private void storeDataInAttributes(int attributeNumber, int size, float[] data) {
+    private int storeDataInAttributes(int attributeNumber, int size, float[] data) {
         int vboID = GL15.glGenBuffers();
         vbos.add(vboID);
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
-
-        FloatBuffer buffer = toFloatBuffer(data);
-        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
-        GL20.glVertexAttribPointer(attributeNumber, size, GL11.GL_FLOAT, false, 0, 0);
-        // unbind
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+        updateDataInAttributes(vboID, attributeNumber, size, data);
+        return vboID;
     }
 
-    private void updateDataInAttributes(int vboID, int attributeNumber, int newSize, float[] newData) {
+    private void updateDataInAttributes(int vboID, int attributeNumber, int size, float[] data) {
         if (!vbos.contains(vboID)) {
             throw new RuntimeException("No such vboID" + vboID + " exists");
         }
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
 
-        FloatBuffer buffer = toFloatBuffer(newData);
+        FloatBuffer buffer = toFloatBuffer(data);
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
-        GL20.glVertexAttribPointer(attributeNumber, newSize, GL11.GL_FLOAT, false, 0, 0);
+        GL20.glVertexAttribPointer(attributeNumber, size, GL11.GL_FLOAT, false, 0, 0);
         // unbind
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
     }
@@ -125,13 +127,20 @@ public class Loader {
     private int bindIndicesBuffer(int[] indices) {
         int vboID = GL15.glGenBuffers();
         vbos.add(vboID);
+        updateIndicesBuffer(vboID, indices);
+        return vboID;
+    }
+
+    private void updateIndicesBuffer(int vboID, int[] indices) {
+        if (!vbos.contains(vboID)) {
+            throw new RuntimeException("No such vboID" + vboID + " exists");
+        }
+
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboID);
         IntBuffer buffer = toIntBuffer(indices);
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
         // unbind
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-
-        return vboID;
     }
 
     private IntBuffer toIntBuffer(int[] data) {

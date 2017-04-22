@@ -5,12 +5,23 @@ import java.util.List;
 
 public class Model {
     private int vaoID;
+    private int vboID; // vertex buffer (positions)
     private int iboID; // indexed buffer
+    private int uvboID; // uv buffer
+
     private int vertexCount;
     private int textureID;
     private boolean textured = false; // doesn't have uv coordinates
     private List<Integer> textureIDs = new ArrayList<>();
     private int currentTexture = 0;
+
+    public int getVboID() {
+        return vboID;
+    }
+
+    public void setVboID(int vboID) {
+        this.vboID = vboID;
+    }
 
     public int getVaoID() {
         return vaoID;
@@ -22,6 +33,18 @@ public class Model {
 
     public int getIboID() {
         return iboID;
+    }
+
+    public void setIboID(int iboID) {
+        this.iboID = iboID;
+    }
+
+    public int getUvboID() {
+        return uvboID;
+    }
+
+    public void setUvboID(int uvboID) {
+        this.uvboID = uvboID;
     }
 
     public int getVertexCount() {
