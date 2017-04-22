@@ -2,10 +2,7 @@ package net.omega2097;
 
 import net.omega2097.shaders.BillboardShader;
 import net.omega2097.shaders.GuiShader;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.*;
 import org.lwjgl.util.vector.Matrix4f;
 import net.omega2097.shaders.StaticShader;
 import net.omega2097.util.Util;
@@ -94,9 +91,13 @@ public class MeshRenderer {
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, model.getTextureID());
 
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, model.getIboID());
         GL11.glDrawElements(GL11.GL_TRIANGLES, model.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
 
         // clean up
+        // unbind IBO
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER,0);
+
         GL20.glDisableVertexAttribArray(0);
         if (model.isTextured()) {
             GL20.glDisableVertexAttribArray(1);

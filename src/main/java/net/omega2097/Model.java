@@ -5,6 +5,7 @@ import java.util.List;
 
 public class Model {
     private int vaoID;
+    private int iboID; // indexed buffer
     private int vertexCount;
     private int textureID;
     private boolean textured = false; // doesn't have uv coordinates
@@ -17,6 +18,10 @@ public class Model {
 
     public void setVaoID(int vaoID) {
         this.vaoID = vaoID;
+    }
+
+    public int getIboID() {
+        return iboID;
     }
 
     public int getVertexCount() {
@@ -47,8 +52,9 @@ public class Model {
         this.currentTexture = number;
     }
 
-    public Model(int vaoID, int vertexCount) {
+    public Model(int vaoID, int iboID, int vertexCount) {
         this.vaoID = vaoID;
+        this.iboID = iboID;
         this.vertexCount = vertexCount;
     }
 }

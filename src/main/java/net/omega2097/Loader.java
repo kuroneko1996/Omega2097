@@ -20,9 +20,9 @@ public class Loader {
 
     public Model loadToVAO(float[] positions, float[] textureCoordinates, int[] indices) {
         int vaoID = createVAO();
+        int iboID = bindIndicesBuffer(indices);
+        Model model = new Model(vaoID, iboID, indices.length);
 
-        Model model = new Model(vaoID, indices.length);
-        bindIndicesBuffer(indices);
         storeDataInAttributes(0, 3, positions);
         if (textureCoordinates != null && textureCoordinates.length > 0) {
             storeDataInAttributes(1, 2, textureCoordinates);
@@ -101,7 +101,20 @@ public class Loader {
         FloatBuffer buffer = toFloatBuffer(data);
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
         GL20.glVertexAttribPointer(attributeNumber, size, GL11.GL_FLOAT, false, 0, 0);
+        // unbind
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+    }
 
+    private void updateDataInAttributes(int vboID, int attributeNumber, int newSize, float[] newData) {
+        if (!vbos.contains(vboID)) {
+            throw new RuntimeException("No such vboID" + vboID + " exists");
+        }
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
+
+        FloatBuffer buffer = toFloatBuffer(newData);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+        GL20.glVertexAttribPointer(attributeNumber, newSize, GL11.GL_FLOAT, false, 0, 0);
+        // unbind
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
     }
 
@@ -109,13 +122,16 @@ public class Loader {
         GL30.glBindVertexArray(0);
     }
 
-    private void bindIndicesBuffer(int[] indices) {
+    private int bindIndicesBuffer(int[] indices) {
         int vboID = GL15.glGenBuffers();
         vbos.add(vboID);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboID);
         IntBuffer buffer = toIntBuffer(indices);
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+        // unbind
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
+        return vboID;
     }
 
     private IntBuffer toIntBuffer(int[] data) {
