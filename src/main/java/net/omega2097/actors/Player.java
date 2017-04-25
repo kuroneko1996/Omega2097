@@ -5,8 +5,6 @@ import net.omega2097.util.Util;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
-import java.util.List;
-
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Player extends Actor {

@@ -6,8 +6,6 @@ import net.omega2097.Model;
 import net.omega2097.util.PrimitivesGenerator;
 import org.lwjgl.util.vector.Vector3f;
 
-import java.util.List;
-
 public class BulletImpact extends GameObject {
     private static final long TIME_TO_DESTROY = 2500;
     private long timeCreated;

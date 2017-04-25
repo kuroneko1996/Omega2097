@@ -6,6 +6,9 @@ import net.omega2097.actors.Player;
 import net.omega2097.map.Map;
 import net.omega2097.map.RandomRoomGenerator;
 import net.omega2097.map.Tile;
+import net.omega2097.renderers.BatchRenderer;
+import net.omega2097.renderers.BillBoardsRenderer;
+import net.omega2097.renderers.GuiRenderer;
 import net.omega2097.shaders.BillboardShader;
 import net.omega2097.shaders.GuiShader;
 import net.omega2097.util.*;
@@ -25,7 +28,10 @@ public class Engine {
     private static Engine instance;
 
     private Loader loader = new Loader();
-    private MeshRenderer renderer;
+    private BatchRenderer batchRenderer;
+    private BillBoardsRenderer billBoardsRenderer;
+    private GuiRenderer guiRenderer;
+
     private StaticShader shader;
     private BillboardShader billboardShader;
     private GuiShader guiShader;
@@ -75,10 +81,14 @@ public class Engine {
         lastLoopTime = getTime();
         lastTime = getTime();
 
+        // init shaders and renderers
         shader = new StaticShader();
         billboardShader = new BillboardShader();
         guiShader = new GuiShader();
-        renderer = new MeshRenderer((float)window.width, (float)window.height);
+        batchRenderer = new BatchRenderer((float)window.width, (float)window.height);
+        billBoardsRenderer = new BillBoardsRenderer((float)window.width, (float)window.height);
+        guiRenderer = new GuiRenderer((float)window.width, (float)window.height);
+
         camera = new Camera();
         primGen = new PrimitivesGenerator(loader);
 
@@ -160,9 +170,19 @@ public class Engine {
         GL11.glClearColor(0,0,0,1);
         GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear frame/depth buffer
 
-        renderer.batchRender(staticEntities, viewMatrix, shader);
+        // render 'static' objects
+        batchRenderer.setViewMatrix(viewMatrix);
+        batchRenderer.setShader(shader);
+        batchRenderer.setRenderEntities(staticEntities);
+        batchRenderer.render();
+
         renderBillboards();
-        renderer.renderGui(guiEntities, viewMatrix, guiShader);
+
+        // render gui
+        guiRenderer.setViewMatrix(viewMatrix);
+        guiRenderer.setGuiShader(guiShader);
+        guiRenderer.setRenderEntities(guiEntities);
+        guiRenderer.render();
 
         glfwSwapBuffers(window.id);
     }
@@ -185,7 +205,10 @@ public class Engine {
             }
         }
 
-        renderer.renderBillBoards(sortedMap, viewMatrix, billboardShader);
+        billBoardsRenderer.setViewMatrix(viewMatrix);
+        billBoardsRenderer.setBillboardShader(billboardShader);
+        billBoardsRenderer.setBatch(sortedMap);
+        billBoardsRenderer.render();
     }
 
 
@@ -458,6 +481,19 @@ public class Engine {
         for(GameObject gameObject : gameObjects) {
             if (gameObject.isDestroyed()) {
                 toRemove.add(gameObject);
+                Model model = gameObject.getModel();
+                if (model == null) continue;
+
+                // remove it from render listss
+                if (model.isBillboard()) {
+                    if (billboardEntities.get(model) != null) {
+                        billboardEntities.get(model).remove(gameObject);
+                    }
+                } else if (!model.isGui()) {
+                    if (staticEntities.get(model) != null) {
+                        staticEntities.get(model).remove(gameObject);
+                    }
+                }
             }
         }
         gameObjects.removeAll(toRemove);

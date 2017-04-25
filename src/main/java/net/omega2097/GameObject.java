@@ -2,8 +2,6 @@ package net.omega2097;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import java.util.List;
-
 public class GameObject {
     private String name = "GameObject";
     private Model model;

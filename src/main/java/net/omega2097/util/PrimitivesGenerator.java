@@ -1,6 +1,5 @@
 package net.omega2097.util;
 
-import net.omega2097.GameObject;
 import net.omega2097.Loader;
 import net.omega2097.Model;
 import org.lwjgl.util.vector.Vector2f;
