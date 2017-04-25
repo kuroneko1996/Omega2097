@@ -65,4 +65,11 @@ public class Mesh {
         }
         return uvArray;
     }
+
+    public void clear() {
+        vertices = null;
+        uv = null;
+        normals = null;
+        triangles = null;
+    }
 }

@@ -6,7 +6,7 @@ import net.omega2097.Stat;
 import net.omega2097.actors.Player;
 
 public class Medkit extends GameObject {
-    private float value = 10f;
+    private float value = 30f;
 
     @Override
     protected void onTriggerEnter(Collider other) {

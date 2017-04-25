@@ -20,6 +20,12 @@ public class MeshBuilder {
 
     public Mesh createMesh() {
         Mesh mesh = new Mesh();
+        return updateMesh(mesh);
+    }
+
+    public Mesh updateMesh(Mesh mesh) {
+        mesh.clear();
+
         mesh.setVertices(vertices.toArray(new Vector3f[vertices.size()]));
         mesh.setTriangles(indices.stream().mapToInt(i->i).toArray());
 
@@ -70,5 +76,12 @@ public class MeshBuilder {
 
     public void buildQuad(Vector3f offset, Vector3f widthDir, Vector3f lengthDir) {
         buildQuad(offset, widthDir, lengthDir, null);
+    }
+
+    public void clear() {
+        vertices.clear();
+        normals.clear();
+        uv.clear();
+        indices.clear();
     }
 }

@@ -7,12 +7,11 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
 import java.util.List;
-import java.util.Map;
 
 public class GuiRenderer extends MeshRenderer {
     private GuiShader guiShader;
-    private java.util.Map<Model, List<GameObject>> renderEntities;
     private Matrix4f guiProjectionMatrix;
+    private List<GameObject> renderEntities;
 
     public GuiRenderer(float screenWidth, float screenHeight) {
         super(screenWidth, screenHeight);
@@ -23,7 +22,7 @@ public class GuiRenderer extends MeshRenderer {
         this.guiShader = guiShader;
     }
 
-    public void setRenderEntities(Map<Model, List<GameObject>> renderEntities) {
+    public void setRenderEntities(List<GameObject> renderEntities) {
         this.renderEntities = renderEntities;
     }
 
@@ -36,18 +35,15 @@ public class GuiRenderer extends MeshRenderer {
         // load uniforms
         shader.loadProjectionMatrix(guiProjectionMatrix);
 
-        for (Model model : renderEntities.keySet()) {
-            List<GameObject> batch = renderEntities.get(model);
+        for (GameObject gameObject : renderEntities) {
+            Model model = gameObject.getModel();
             int vertexCount = model.getVertexCount();
 
             prepare(model);
 
-            for (GameObject gameObject : batch) {
-                Vector3f guiCenter = gameObject.getPosition();
-                shader.loadGuiCenter(guiCenter.x, guiCenter.y, guiCenter.z);
-
-                draw(vertexCount);
-            }
+            Vector3f guiCenter = gameObject.getPosition();
+            shader.loadGuiCenter(guiCenter.x, guiCenter.y, guiCenter.z);
+            draw(vertexCount);
 
             cleanup(model);
         }

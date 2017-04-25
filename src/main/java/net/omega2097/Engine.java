@@ -3,16 +3,17 @@ package net.omega2097;
 import net.omega2097.actors.Actor;
 import net.omega2097.actors.EnemyAi;
 import net.omega2097.actors.Player;
+import net.omega2097.gui.Hud;
+import net.omega2097.gui.TextItem;
 import net.omega2097.map.Map;
 import net.omega2097.map.RandomRoomGenerator;
 import net.omega2097.map.Tile;
 import net.omega2097.renderers.BatchRenderer;
 import net.omega2097.renderers.BillBoardsRenderer;
-import net.omega2097.renderers.GuiRenderer;
 import net.omega2097.shaders.BillboardShader;
-import net.omega2097.shaders.GuiShader;
-import net.omega2097.util.*;
+import net.omega2097.util.PrimitivesGenerator;
 import net.omega2097.util.Random;
+import net.omega2097.util.Util;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
@@ -30,11 +31,11 @@ public class Engine {
     private Loader loader = new Loader();
     private BatchRenderer batchRenderer;
     private BillBoardsRenderer billBoardsRenderer;
-    private GuiRenderer guiRenderer;
+
+    private Hud hud;
 
     private StaticShader shader;
     private BillboardShader billboardShader;
-    private GuiShader guiShader;
     private Player player;
     private Camera camera;
     private Matrix4f viewMatrix;
@@ -53,7 +54,6 @@ public class Engine {
 
     private java.util.Map<Model, List<GameObject>> staticEntities = new HashMap<>();
     private java.util.Map<Model, List<GameObject>> billboardEntities = new HashMap<>();
-    private java.util.Map<Model, List<GameObject>> guiEntities = new HashMap<>();
 
     private Game game;
 
@@ -84,10 +84,9 @@ public class Engine {
         // init shaders and renderers
         shader = new StaticShader();
         billboardShader = new BillboardShader();
-        guiShader = new GuiShader();
         batchRenderer = new BatchRenderer((float)window.width, (float)window.height);
         billBoardsRenderer = new BillBoardsRenderer((float)window.width, (float)window.height);
-        guiRenderer = new GuiRenderer((float)window.width, (float)window.height);
+        hud = new Hud((float)window.width, (float)window.height);
 
         camera = new Camera();
         primGen = new PrimitivesGenerator(loader);
@@ -132,7 +131,6 @@ public class Engine {
 
     private void prepareRenderLists() {
         staticEntities.clear();
-        guiEntities.clear();
         billboardEntities.clear();
 
         for(GameObject gameObject: gameObjects) {
@@ -142,8 +140,6 @@ public class Engine {
 
             if (model.isBillboard()) {
                 currentStorage = billboardEntities;
-            } else if (model.isGui()) {
-                currentStorage = guiEntities;
             } else {
                 currentStorage = staticEntities;
             }
@@ -179,10 +175,7 @@ public class Engine {
         renderBillboards();
 
         // render gui
-        guiRenderer.setViewMatrix(viewMatrix);
-        guiRenderer.setGuiShader(guiShader);
-        guiRenderer.setRenderEntities(guiEntities);
-        guiRenderer.render();
+        hud.render();
 
         glfwSwapBuffers(window.id);
     }
@@ -215,6 +208,7 @@ public class Engine {
     private void loadLevel() {
         toRemove.clear();
         gameObjects.clear();
+        hud.clear();
         player = null;
 
         loader.cleanUp();
@@ -234,7 +228,7 @@ public class Engine {
         addMedkits(map, primGen);
         addTreasures(map, primGen);
         addPlayer();
-        addGui();
+        addHud();
         System.out.println("Total " + gameObjects.size() + " game objects have been created");
         printMap(map);
 
@@ -296,7 +290,7 @@ public class Engine {
         player = new Player();
         player.setName("Player");
         player.setMouseInput(mouseInput);
-        player.getHealth().setCurrent(30f).setMax(30f);
+        player.getHealth().setCurrent(100f).setMax(100f);
 
         Vector3f bboxSize = new Vector3f(0.5f,0.8f,0.5f);
         Vector3f bboxCoord = new Vector3f(-0.5f, -0.5f, -0.5f);
@@ -310,7 +304,7 @@ public class Engine {
 
     }
 
-    private void addGui() {
+    private void addHud() {
         float screenCenterX = window.width / 2f;
         float screenCenterY = window.height / 2f;
         float xScale = (float)window.height / (float)window.width;
@@ -327,18 +321,41 @@ public class Engine {
         GameObject gun = new GameObject();
         gun.setModel(primGen.generateRectangle(gunX1, gunY1,
                 gunX2, gunY2, 0));
-        gun.getModel().setGui(true);
         gun.setTextureName("textures/gui/weapons/pistol.png");
         gun.getModel().addTextureID(loader.loadTexture("res/" + gun.getTextureName()));
-        gameObjects.add(gun);
+
+        hud.add(gun);
         player.setGun(gun);
 
-        GameObject hud = new GameObject();
-        hud.setModel(primGen.generateRectangle(0,0, window.width, 80, 0, 0, 280f/320f, 1, 1));
-        hud.getModel().setGui(true);
-        hud.setTextureName("textures/gui/hud.png");
-        hud.getModel().addTextureID(loader.loadTexture("res/" + hud.getTextureName()));
-        gameObjects.add(hud);
+        GameObject hudPanel = new GameObject();
+        hudPanel.setModel(primGen.generateRectangle(0,0, window.width, 80, 0, 0, 280f/320f, 1, 1));
+        hudPanel.setTextureName("textures/gui/hud.png");
+        hudPanel.getModel().addTextureID(loader.loadTexture("res/" + hudPanel.getTextureName()));
+        hud.add(hudPanel);
+
+
+        float levelTextX = 40;
+        float levelTextY = -4;
+        TextItem levelText = new TextItem(levelTextX, levelTextY, Integer.toString(game.getLevel()),
+                "textures/gui/fonts/lbook.png", 16, 16, "ISO-8859-1", 1);
+        hud.add(levelText);
+
+        TextItem scoreText = new TextItem(levelTextX + 55, levelTextY, "000",
+                "textures/gui/fonts/lbook.png", 16, 16, "ISO-8859-1", 1);
+        hud.add(scoreText);
+
+        TextItem livesText = new TextItem(levelTextX + 190, levelTextY, Integer.toString(game.getLives()),
+                "textures/gui/fonts/lbook.png", 16, 16, "ISO-8859-1", 1);
+        hud.add(livesText);
+
+        TextItem healthText = new TextItem(levelTextX + 290, levelTextY, Integer.toString(player.getHealth().getCurrent().intValue()),
+                "textures/gui/fonts/lbook.png", 16, 16, "ISO-8859-1", 1);
+        hud.add(healthText);
+        hud.setPlayerHealth(healthText);
+
+        TextItem ammoText = new TextItem(levelTextX + 375, levelTextY, "99",
+                "textures/gui/fonts/lbook.png", 16, 16, "ISO-8859-1", 1);
+        hud.add(ammoText);
     }
 
     private void addDogs(Map map, PrimitivesGenerator primGen) {
@@ -489,10 +506,6 @@ public class Engine {
                     if (billboardEntities.get(model) != null) {
                         billboardEntities.get(model).remove(gameObject);
                     }
-                } else if (!model.isGui()) {
-                    if (staticEntities.get(model) != null) {
-                        staticEntities.get(model).remove(gameObject);
-                    }
                 }
             }
         }
@@ -546,6 +559,8 @@ public class Engine {
         if (camera.isUpdated()) {
             Util.updateViewMatrix(viewMatrix, camera.getPosition(), camera.getPitch(), camera.getYaw());
         }
+
+        hud.update();
     }
 
     public void startGameLoop() {
@@ -570,9 +585,9 @@ public class Engine {
             }
         }
 
-        guiShader.cleanUp();
         billboardShader.cleanUp();
         shader.cleanUp();
+        hud.cleanup();
         loader.cleanUp();
     }
 

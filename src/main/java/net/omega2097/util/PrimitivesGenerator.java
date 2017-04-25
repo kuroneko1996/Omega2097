@@ -27,8 +27,8 @@ public class PrimitivesGenerator {
         texCoordinates.add(new Vector2f(texelSizeX, texelSizeY));
 
         Vector3f nearCorner = new Vector3f(-0.5f, -0.5f,z);
-        Vector3f upDir = new Vector3f(0, 1f, 0);
         Vector3f rightDir = new Vector3f(1f, 0, 0);
+        Vector3f upDir = new Vector3f(0, 1f, 0);
 
         builder.buildQuad(nearCorner, rightDir, upDir, texCoordinates);
 
@@ -54,8 +54,8 @@ public class PrimitivesGenerator {
         texCoordinates.add(new Vector2f(uvEndX, uvEndY));
 
         Vector3f nearCorner = new Vector3f(x1, y1, z);
-        Vector3f upDir = new Vector3f(0, height, 0);
         Vector3f rightDir = new Vector3f(width, 0, 0);
+        Vector3f upDir = new Vector3f(0, height, 0);
 
         builder.buildQuad(nearCorner, rightDir, upDir, texCoordinates);
 
