@@ -73,9 +73,6 @@ public class Shooter {
 
         if (mapEntry.isPresent()) {
             GameObject hitGameObject = mapEntry.get().getValue();
-            BulletImpact bulletImpact = BulletImpact.create(hitCoord, Engine.getInstance().getPrimGen(),
-                    Engine.getInstance().getLoader());
-            Engine.getInstance().addGameObject(bulletImpact);
 
             System.out.println(hitGameObject.getName() + " has been shot at " + hitCoord + ", dst: " + mapEntry.get().getKey());
             if (hitGameObject instanceof Actor) {
@@ -83,14 +80,6 @@ public class Shooter {
                 actor.takeDamage(10);
             }
         }
-    }
-    private void createVisualRay(Vector3f origin, Vector3f rot, List<GameObject> gameObjects) {
-        Engine engine = Engine.getInstance();
-        Loader loader = engine.getLoader();
-        PrimitivesGenerator primGen = engine.getPrimGen();
-
-        RayTrace trace = RayTrace.create(origin, rot, primGen, loader);
-        gameObjects.add(trace);
     }
 
     void update() {

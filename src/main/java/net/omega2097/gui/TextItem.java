@@ -1,9 +1,6 @@
 package net.omega2097.gui;
 
-import net.omega2097.Engine;
-import net.omega2097.GameObject;
-import net.omega2097.Loader;
-import net.omega2097.Model;
+import net.omega2097.*;
 import net.omega2097.util.Mesh;
 import net.omega2097.util.MeshBuilder;
 import org.lwjgl.util.vector.Vector2f;
@@ -15,9 +12,8 @@ import java.util.List;
 
 public class TextItem extends GameObject {
     private String text;
-    private final int numCols;
-    private final int numRows;
-    private Loader loader;
+    private BitmapFont font;
+    private ILoader loader;
     private Model model;
     private Mesh mesh;
     private MeshBuilder builder;
@@ -25,26 +21,22 @@ public class TextItem extends GameObject {
     private float x1;
     private float y1;
     private float size;
-    private int textureWidth = 256;
-    private int textureHeight = 256;
 
-    public TextItem(float x, float y, String text, String fontTexture, int numRows, int numCols, String charset, float sizePercent) {
+    public TextItem(float x, float y, String text, BitmapFont font, String charset, float size, ILoader loader) {
         super();
         this.x1 = x;
         this.y1 = y;
         this.text = text;
-        this.numCols = numCols;
-        this.numRows = numRows;
         this.charset = charset;
         this.mesh = new Mesh();
-        this.size = sizePercent;
-
-        loader = Engine.getInstance().getLoader();
+        this.size = size;
+        this.font = font;
+        this.loader = loader;
         builder = new MeshBuilder();
-        model = loader.loadToVAO(buildMesh(numRows, numCols));
+        model = loader.load(buildMesh(font.getNumRows(), font.getNumCols()));
         setModel(model);
-        setTextureName(fontTexture);
-        getModel().addTextureID(loader.loadTexture("res/" + fontTexture));
+        setTextureName(font.getFileName());
+        getModel().addTextureID(font.getTextureID());
     }
 
     public String getText() {
@@ -54,8 +46,8 @@ public class TextItem extends GameObject {
     public void setText(String text) {
         this.text = text;
 
-        buildMesh(numCols, numRows);
-        loader.updateModelInVAO(model, mesh);
+        buildMesh(font.getNumRows(), font.getNumCols());
+        loader.updateModel(model, mesh);
     }
 
     private Mesh buildMesh(int numRows, int numCols) {
@@ -64,8 +56,8 @@ public class TextItem extends GameObject {
         int numChars = chars.length;
         float zPos = 0.01f; // TODO options
 
-        float tileWidth = (float)textureWidth / (float)numCols * this.size;
-        float tileHeight = (float)textureHeight / (float)numRows * this.size;
+        float tileWidth = (float)font.getTextureWidth() / (float)numCols * this.size;
+        float tileHeight = (float)font.getTextureHeight() / (float)numRows * this.size;
         List<Vector2f> texCoordinates = new ArrayList<>();
 
         for(int i = 0; i < numChars; i++) {

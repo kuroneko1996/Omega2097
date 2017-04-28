@@ -3,6 +3,7 @@ package net.omega2097;
 import net.omega2097.actors.Actor;
 import net.omega2097.actors.EnemyAi;
 import net.omega2097.actors.Player;
+import net.omega2097.gui.BitmapFont;
 import net.omega2097.gui.Hud;
 import net.omega2097.gui.TextItem;
 import net.omega2097.map.Map;
@@ -337,25 +338,27 @@ public class Engine {
         float levelTextX = 35;
         float levelTextY = 20;
         float textSize = 1f;
+        BitmapFont font = new BitmapFont("res/textures/gui/fonts/ExportedFont.png", 16, 16, loader);
+
         TextItem levelText = new TextItem(levelTextX, levelTextY, String.format("%02d", game.getLevel()),
-                "textures/gui/fonts/ExportedFont.png", 16, 16, "ISO-8859-1", textSize);
+                font, "ISO-8859-1", textSize, loader);
         hud.add(levelText);
 
         TextItem scoreText = new TextItem(levelTextX + 60, levelTextY, String.format("%06d",0),
-                "textures/gui/fonts/ExportedFont.png", 16, 16, "ISO-8859-1", textSize);
+                font, "ISO-8859-1", textSize, loader);
         hud.add(scoreText);
 
         TextItem livesText = new TextItem(levelTextX + 180, levelTextY, String.format("%02d",game.getLives()),
-                "textures/gui/fonts/ExportedFont.png", 16, 16, "ISO-8859-1", textSize);
+                font, "ISO-8859-1", textSize, loader);
         hud.add(livesText);
 
         TextItem healthText = new TextItem(levelTextX + 300, levelTextY, String.format("%03d", player.getHealth().getCurrent().intValue()),
-                "textures/gui/fonts/ExportedFont.png", 16, 16, "ISO-8859-1", textSize);
+                font, "ISO-8859-1", textSize, loader);
         hud.add(healthText);
         hud.setPlayerHealth(healthText);
 
         TextItem ammoText = new TextItem(levelTextX + 385, levelTextY, String.format("%03d",999),
-                "textures/gui/fonts/ExportedFont.png", 16, 16, "ISO-8859-1", textSize);
+                font, "ISO-8859-1", textSize, loader);
         hud.add(ammoText);
     }
 
@@ -598,14 +601,6 @@ public class Engine {
 
     public void addGameObject(GameObject gameObject) {
         gameObjects.add(gameObject);
-    }
-
-    public Loader getLoader() {
-        return loader;
-    }
-
-    public PrimitivesGenerator getPrimGen() {
-        return primGen;
     }
 
     public Player getPlayer() {

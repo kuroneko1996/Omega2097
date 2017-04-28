@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Loader {
+public class Loader implements ILoader {
     public final static int POSITIONS_INDEX = 0;
     public final static int UV_INDEX = 1;
 
@@ -22,7 +22,8 @@ public class Loader {
     private List<Integer> vbos = new ArrayList<>();
     private Map<String, Integer> textures = new HashMap<>();
 
-    Model loadToVAO(float[] positions, float[] textureCoordinates, int[] indices) {
+    @Override
+    public Model load(float[] positions, float[] textureCoordinates, int[] indices) {
         int vaoID = createVAO();
         int iboID = bindIndicesBuffer(indices);
 
@@ -39,13 +40,15 @@ public class Loader {
         return model;
     }
 
-    public Model loadToVAO(Mesh mesh) {
-        Model model = loadToVAO(mesh.getVerticesArray(), mesh.getUvArray(), mesh.getTriangles());
+    @Override
+    public Model load(Mesh mesh) {
+        Model model = load(mesh.getVerticesArray(), mesh.getUvArray(), mesh.getTriangles());
         model.setMesh(mesh);
         return model;
     }
 
-    public Model updateModelInVAO(Model model, Mesh mesh) {
+    @Override
+    public Model updateModel(Model model, Mesh mesh) {
         GL30.glBindVertexArray(model.getVaoID());
 
         updateIndicesBuffer(model.getIboID(), mesh.getTriangles());
@@ -62,6 +65,7 @@ public class Loader {
         return model;
     }
 
+    @Override
     public int loadTexture(String fileName) {
         int textureID;
 
@@ -100,6 +104,7 @@ public class Loader {
         return textureID;
     }
 
+    @Override
     public void cleanUp() {
         for (int vao: vaos) {
             GL30.glDeleteVertexArrays(vao);

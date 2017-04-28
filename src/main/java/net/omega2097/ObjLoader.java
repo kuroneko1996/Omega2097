@@ -90,7 +90,7 @@ public class ObjLoader {
             indicesArray[i] = indices.get(i);
         }
 
-        return loader.loadToVAO(positionsArray, uvsArray, indicesArray);
+        return loader.load(positionsArray, uvsArray, indicesArray);
     }
 
     private void processVertex(String[] vertexData) {
