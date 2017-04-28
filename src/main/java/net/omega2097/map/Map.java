@@ -70,7 +70,7 @@ public class Map implements IMap {
             if (tile.isWalkable() && !tile.isObject()) {
                 Actor gameObject = new Actor();
                 gameObject.getHealth().setMax(25f).setCurrent(25f);
-                gameObject.setPosition(x, 0.5f, y);
+                gameObject.setPosition(x, 0.5f, -y);
                 gameObject.setSolid(true);
                 EnemyAi enemyAi = new EnemyAi(gameObject);
                 gameObject.setAi(enemyAi);
@@ -100,7 +100,7 @@ public class Map implements IMap {
             Tile tile = getTileAt(x, y);
             if (tile.isWalkable() && !tile.isObject()) {
                 Medkit gameObject = new Medkit();
-                gameObject.setPosition(x, 0.5f, y);
+                gameObject.setPosition(x, 0.5f, -y);
                 gameObject.setSolid(false);
                 medkits.add(gameObject);
                 tile.setObject(true);
@@ -118,7 +118,7 @@ public class Map implements IMap {
             Tile tile = getTileAt(x, y);
             if (tile.isWalkable() && !tile.isObject()) {
                 Treasure gameObject = new Treasure();
-                gameObject.setPosition(x, 0.5f, y);
+                gameObject.setPosition(x, 0.5f, -y);
                 gameObject.setSolid(false);
                 treasures.add(gameObject);
                 tile.setObject(true);

@@ -23,7 +23,7 @@ public class Stat<T> {
     }
 
     public boolean isMax() {
-        return current == max;
+        return current.equals(max);
     }
 
     public Stat(T value) {

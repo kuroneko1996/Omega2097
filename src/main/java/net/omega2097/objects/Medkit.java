@@ -14,8 +14,14 @@ public class Medkit extends GameObject {
         if (other.getOwner() instanceof Player) {
             Player player = (Player)other.getOwner();
             Stat<Float> health = player.getHealth();
+            float currentHealth = health.getCurrent();
             if (!health.isMax()) {
-                health.setCurrent(health.getCurrent() + value);
+                float newValue = currentHealth + value;
+                if (newValue > health.getMax()) {
+                    newValue = health.getMax();
+                }
+                health.setCurrent(newValue);
+
                 System.out.println("Picked up a medkit. Health: " + health.getCurrent());
                 destroy();
             }

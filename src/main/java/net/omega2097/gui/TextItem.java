@@ -25,6 +25,8 @@ public class TextItem extends GameObject {
     private float x1;
     private float y1;
     private float size;
+    private int textureWidth = 256;
+    private int textureHeight = 256;
 
     public TextItem(float x, float y, String text, String fontTexture, int numRows, int numCols, String charset, float sizePercent) {
         super();
@@ -62,12 +64,12 @@ public class TextItem extends GameObject {
         int numChars = chars.length;
         float zPos = 0.01f; // TODO options
 
-        float tileWidth = 512f / (float)numCols * this.size;
-        float tileHeight = 1024f / (float)numRows * this.size;
+        float tileWidth = (float)textureWidth / (float)numCols * this.size;
+        float tileHeight = (float)textureHeight / (float)numRows * this.size;
         List<Vector2f> texCoordinates = new ArrayList<>();
 
         for(int i = 0; i < numChars; i++) {
-            byte currentChar = chars[i];
+            byte currentChar = (byte)(chars[i] - 32);
             int col = currentChar % numCols;
             int row = currentChar / numCols;
             float x = x1 + i * tileWidth;

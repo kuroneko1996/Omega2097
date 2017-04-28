@@ -17,7 +17,7 @@ public class Hud extends Gui {
         Player player = Engine.getInstance().getPlayer();
         String playerHealthString = Integer.toString(player.getHealth().getCurrent().intValue());
         if ( !playerHealthString.equals(playerHealth.getText()) ) {
-            playerHealth.setText(playerHealthString);
+            playerHealth.setText(String.format("%03d", player.getHealth().getCurrent().intValue()));
         }
     }
 }

@@ -251,7 +251,7 @@ public class Engine {
                     gameObject.setName("Wall x=" + x + ", y=" + y);
                     gameObject.setSolid(true);
                     gameObject.setModel(model);
-                    gameObject.setPosition(x, 0.5f, y);
+                    gameObject.setPosition(x, 0.5f, -y);
                     gameObject.setTextureName(textureName);
 
                     Vector3f bboxSize = new Vector3f(1,1,1);
@@ -269,16 +269,16 @@ public class Engine {
     private void addFloorAndCeil() {
         // Make floor and ceil
         GameObject floor = new GameObject();
-        floor.setModel(primGen.generateHorizontalQuad(32, 32));
-        floor.setPosition(0,0,0);
-        floor.setScale(32, 1, 32);
+        floor.setModel(primGen.generateHorizontalQuad(map.getWidth(), map.getHeight()));
+        floor.setPosition(0,0,-map.getHeight());
+        floor.setScale(map.getWidth(), 1, map.getHeight());
         floor.setTextureName("w_floor1.png");
         floor.getModel().addTextureID(loader.loadTexture("res/" + floor.getTextureName()));
 
         GameObject ceil = new GameObject();
-        ceil.setModel(primGen.generateHorizontalQuad(32, 32));
-        ceil.setPosition(0, 1,0);
-        ceil.setScale(32, 1, 32);
+        ceil.setModel(primGen.generateHorizontalQuad(map.getWidth(), map.getHeight()));
+        ceil.setPosition(0, 1,-map.getHeight());
+        ceil.setScale(map.getWidth(), 1, map.getHeight());
         ceil.setTextureName("w_ceil1.png");
         ceil.getModel().addTextureID(loader.loadTexture("res/" + ceil.getTextureName()));
 
@@ -300,7 +300,7 @@ public class Engine {
 
         Tile startTile = map.getRandomClearTile();
         System.out.println("Start at " + startTile.getX() + ", " + startTile.getY());
-        player.setPosition(startTile.getX() + 0.5f, 0.5f, startTile.getY() + 0.5f);
+        player.setPosition(startTile.getX() + 0.5f, 0.5f, -startTile.getY() + 0.5f);
 
     }
 
@@ -334,27 +334,28 @@ public class Engine {
         hud.add(hudPanel);
 
 
-        float levelTextX = 40;
-        float levelTextY = -4;
-        TextItem levelText = new TextItem(levelTextX, levelTextY, Integer.toString(game.getLevel()),
-                "textures/gui/fonts/lbook.png", 16, 16, "ISO-8859-1", 1);
+        float levelTextX = 35;
+        float levelTextY = 20;
+        float textSize = 1f;
+        TextItem levelText = new TextItem(levelTextX, levelTextY, String.format("%02d", game.getLevel()),
+                "textures/gui/fonts/ExportedFont.png", 16, 16, "ISO-8859-1", textSize);
         hud.add(levelText);
 
-        TextItem scoreText = new TextItem(levelTextX + 55, levelTextY, "000",
-                "textures/gui/fonts/lbook.png", 16, 16, "ISO-8859-1", 1);
+        TextItem scoreText = new TextItem(levelTextX + 60, levelTextY, String.format("%06d",0),
+                "textures/gui/fonts/ExportedFont.png", 16, 16, "ISO-8859-1", textSize);
         hud.add(scoreText);
 
-        TextItem livesText = new TextItem(levelTextX + 190, levelTextY, Integer.toString(game.getLives()),
-                "textures/gui/fonts/lbook.png", 16, 16, "ISO-8859-1", 1);
+        TextItem livesText = new TextItem(levelTextX + 180, levelTextY, String.format("%02d",game.getLives()),
+                "textures/gui/fonts/ExportedFont.png", 16, 16, "ISO-8859-1", textSize);
         hud.add(livesText);
 
-        TextItem healthText = new TextItem(levelTextX + 290, levelTextY, Integer.toString(player.getHealth().getCurrent().intValue()),
-                "textures/gui/fonts/lbook.png", 16, 16, "ISO-8859-1", 1);
+        TextItem healthText = new TextItem(levelTextX + 300, levelTextY, String.format("%03d", player.getHealth().getCurrent().intValue()),
+                "textures/gui/fonts/ExportedFont.png", 16, 16, "ISO-8859-1", textSize);
         hud.add(healthText);
         hud.setPlayerHealth(healthText);
 
-        TextItem ammoText = new TextItem(levelTextX + 375, levelTextY, "99",
-                "textures/gui/fonts/lbook.png", 16, 16, "ISO-8859-1", 1);
+        TextItem ammoText = new TextItem(levelTextX + 385, levelTextY, String.format("%03d",999),
+                "textures/gui/fonts/ExportedFont.png", 16, 16, "ISO-8859-1", textSize);
         hud.add(ammoText);
     }
 
@@ -479,8 +480,8 @@ public class Engine {
     }
 
     private void printMap(Map map) {
-        for (int x = 0; x < map.getWidth(); x++) {
-            for (int y = 0; y < map.getHeight(); y++) {
+        for (int x = map.getWidth() - 1; x >= 0; x--) {
+            for (int y = map.getHeight() - 1; y >=0; y--) {
                 Tile tile = map.getTileAt(x, y);
                 if (tile.isObject()) {
                     System.out.print("o");
