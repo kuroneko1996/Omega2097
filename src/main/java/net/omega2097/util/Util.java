@@ -1,6 +1,7 @@
 package net.omega2097.util;
 
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import net.omega2097.Camera;
 
@@ -137,5 +138,26 @@ public class Util {
                 vec.z* cosAngle - vec.y * sinAngle
 
         );
+    }
+
+    // works for squared textures only
+    public static float[] calcUVinAtlas(int textureSize, int numRows, int textureIndex) {
+        return calcUVinAtlas(new float[] {0f,0f,1f,1f}, textureSize, numRows, textureIndex);
+    }
+
+    public static float[] calcUVinAtlas(float[] uv, int textureSize, int numRows, int textureIndex) {
+        int column = textureIndex % numRows;
+        float xOffset = column / (float)numRows;
+
+        int row = textureIndex / numRows;
+        float yOffset = row / (float)numRows;
+
+        float[] newUv = new float[4];
+
+        for (int i = 0; i < 4; i+=2) {
+            newUv[i] = uv[i] / (float)numRows + xOffset;
+            newUv[i+1] = uv[i+1] / (float)numRows + yOffset;
+        }
+        return newUv;
     }
 }

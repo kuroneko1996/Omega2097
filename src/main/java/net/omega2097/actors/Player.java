@@ -12,6 +12,8 @@ public class Player extends Actor {
     private Camera camera;
     private GameObject gun;
 
+    Stat<Integer> ammo = new Stat<>(0);
+
     public Player() {
         super();
         this.shooter = new Shooter(this);
@@ -39,6 +41,10 @@ public class Player extends Actor {
 
     public void setGun(GameObject gun) {
         this.gun = gun;
+    }
+
+    public Stat<Integer> getAmmo() {
+        return ammo;
     }
 
     @Override
@@ -87,16 +93,22 @@ public class Player extends Actor {
         if (KeyboardHandler.isKeyDown(GLFW_KEY_Z)
                 || (mouseInput.isButtonDown(GLFW_MOUSE_BUTTON_1) && mouseInput.isMouseClickedInWindow())) {
 
-            Vector3f dirInRadians = getDirectionInRadians();
-            float angleY = dirInRadians.y;
-            float angleX = dirInRadians.x;
-            Vector3f tmpDir = new Vector3f(0, 0, -1);
+            int currentAmmo = ammo.getCurrent();
+            if (currentAmmo > 0) {
+                Vector3f dirInRadians = getDirectionInRadians();
+                float angleY = dirInRadians.y;
+                float angleX = dirInRadians.x;
+                Vector3f tmpDir = new Vector3f(0, 0, -1);
 
-            tmpDir = Util.rotateX(tmpDir, angleX);
-            tmpDir = Util.rotateY(tmpDir, angleY);
-            Vector3f rayDirection = tmpDir.normalise(null);
+                tmpDir = Util.rotateX(tmpDir, angleX);
+                tmpDir = Util.rotateY(tmpDir, angleY);
+                Vector3f rayDirection = tmpDir.normalise(null);
 
-            shooter.shoot(rayDirection);
+                if (shooter.shoot(rayDirection)) {
+                    ammo.setCurrent( (currentAmmo - 1) > 0 ? currentAmmo - 1 : 0);
+                    Engine.getInstance().getHud().setUpdated(true);
+                }
+            }
         }
         if (KeyboardHandler.isKeyDown(GLFW_KEY_X)) {
             System.out.println("pos: " + position + ", dir: " + getDirection() + ", bbox: " + getCollider().getBox().getPosition() + ", camRot: " + camera.getRotation());
@@ -131,6 +143,52 @@ public class Player extends Actor {
         float rotZ = 0;
 
         return new Vector3f(rotX, rotY, rotZ);
+    }
+
+    @Override
+    public void takeDamage(float dmg) {
+        super.takeDamage(dmg);
+        Engine.getInstance().getHud().setUpdated(true);
+    }
+
+    @Override
+    public float heal(float value) {
+        float amountHealed = super.heal(value);
+        if (amountHealed > 0) {
+            Engine.getInstance().getHud().setUpdated(true);
+            System.out.println("Picked up a medkit. +" + amountHealed);
+        }
+        return amountHealed;
+    }
+
+    public int addAmmo(int value) {
+        int oldAmmo = ammo.getCurrent();
+        if (!ammo.isMax()) {
+            int newValue = oldAmmo + value;
+            if (newValue > ammo.getMax()) {
+                newValue = ammo.getMax();
+            }
+            ammo.setCurrent(newValue);
+            Engine.getInstance().getHud().setUpdated(true);
+            System.out.println("Picked up ammo. +" + (newValue - oldAmmo));
+            return (newValue - oldAmmo);
+        }
+        return 0;
+    }
+
+    public int addGold(int value) {
+        int oldAmmo = gold.getCurrent();
+        if (!gold.isMax()) {
+            int newValue = oldAmmo + value;
+            if (newValue > gold.getMax()) {
+                newValue = gold.getMax();
+            }
+            gold.setCurrent(newValue);
+            Engine.getInstance().getHud().setUpdated(true);
+            System.out.println("Picked up a treasure. +" + (newValue - oldAmmo) + " gold.");
+            return (newValue - oldAmmo);
+        }
+        return 0;
     }
 
     private void updateCameraPosition() {

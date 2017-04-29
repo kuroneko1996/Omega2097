@@ -2,10 +2,7 @@ package net.omega2097;
 
 import net.omega2097.util.Mesh;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.*;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -20,7 +17,7 @@ public class Loader implements ILoader {
 
     private List<Integer> vaos = new ArrayList<>();
     private List<Integer> vbos = new ArrayList<>();
-    private Map<String, Integer> textures = new HashMap<>();
+    private Map<String, Texture> textures = new HashMap<>();
 
     @Override
     public Model load(float[] positions, float[] textureCoordinates, int[] indices) {
@@ -66,13 +63,13 @@ public class Loader implements ILoader {
     }
 
     @Override
-    public int loadTexture(String fileName) {
+    public Texture loadTexture(String fileName) {
         int textureID;
 
         // cached?
-        Integer cachedID = textures.get(fileName);
-        if (cachedID != null) {
-            return cachedID;
+        Texture cachedTexture = textures.get(fileName);
+        if (cachedTexture != null) {
+            return cachedTexture;
         }
 
         Image image = new Image(fileName);
@@ -98,10 +95,11 @@ public class Loader implements ILoader {
             GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, w, h, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, image.getImage());
         }
 
-        textures.put(fileName, textureID);
+        Texture texture = new Texture(fileName, w, h, textureID);
+        textures.put(fileName, texture);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 
-        return textureID;
+        return texture;
     }
 
     @Override
@@ -116,7 +114,7 @@ public class Loader implements ILoader {
         }
         vbos.clear();
 
-        textures.forEach((k, textureID) -> GL11.glDeleteTextures(textureID));
+        textures.forEach((k, texture) -> GL11.glDeleteTextures(texture.getId()));
         textures.clear();
     }
 

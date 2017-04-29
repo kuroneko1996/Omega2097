@@ -22,6 +22,8 @@ public class Game {
         this.level = 0;
     }
 
+
+
     public GameState getState() {
         return state;
     }

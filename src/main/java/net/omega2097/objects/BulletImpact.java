@@ -18,7 +18,7 @@ public class BulletImpact extends GameObject {
         gameObject.setPosition(location.x, location.y, location.z);
         gameObject.setModel(model);
         gameObject.setTextureName("red.png");
-        gameObject.getModel().addTextureID(loader.loadTexture("res/" + gameObject.getTextureName()));
+        gameObject.getModel().addTexture(loader.loadTexture("res/" + gameObject.getTextureName()));
 
         gameObject.timeCreated = System.currentTimeMillis();
         return gameObject;

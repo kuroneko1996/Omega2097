@@ -5,18 +5,23 @@ import net.omega2097.GameObject;
 import net.omega2097.Stat;
 import net.omega2097.actors.Player;
 
-public class Treasure extends GameObject {
+public class Treasure extends Pickable {
     private int value = 100;
 
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
+    }
+
     @Override
-    protected void onTriggerEnter(Collider other) {
-        super.onTriggerEnter(other);
-        if (other.getOwner() instanceof Player) {
-            Player player = (Player)other.getOwner();
-            Stat<Integer> gold = player.getGold();
-            gold.setCurrent(gold.getCurrent() + value);
-            System.out.println("Picked up a treasure. Gold: " + gold.getCurrent());
+    public boolean use(Player player) {
+        if (player.addGold(value) > 0) {
             destroy();
+            return true;
         }
+        return false;
     }
 }

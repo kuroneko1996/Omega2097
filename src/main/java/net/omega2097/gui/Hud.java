@@ -5,6 +5,9 @@ import net.omega2097.actors.Player;
 
 public class Hud extends Gui {
     private TextItem playerHealth;
+    private TextItem playerAmmo;
+    private boolean updated;
+
     public Hud(float screenWidth, float screenHeight) {
         super(screenWidth, screenHeight);
     }
@@ -13,11 +16,19 @@ public class Hud extends Gui {
         this.playerHealth = playerHealth;
     }
 
+    public void setPlayerAmmo(TextItem playerAmmo) {
+        this.playerAmmo = playerAmmo;
+    }
+
+    public void setUpdated(boolean updated) {
+        this.updated = updated;
+    }
+
     public void update() {
-        Player player = Engine.getInstance().getPlayer();
-        String playerHealthString = Integer.toString(player.getHealth().getCurrent().intValue());
-        if ( !playerHealthString.equals(playerHealth.getText()) ) {
+        if (updated) {
+            Player player = Engine.getInstance().getPlayer();
             playerHealth.setText(String.format("%03d", player.getHealth().getCurrent().intValue()));
+            playerAmmo.setText(String.format("%03d", player.getAmmo().getCurrent()));
         }
     }
 }

@@ -32,8 +32,8 @@ public class Shooter {
         this.shootDelay = shootDelay;
     }
 
-    void shoot(Vector3f rayDirection) {
-        if (isShooting) return;
+    boolean shoot(Vector3f rayDirection) {
+        if (isShooting) return false;
 
         isShooting = true;
         shootStartTime = System.currentTimeMillis();
@@ -80,6 +80,8 @@ public class Shooter {
                 actor.takeDamage(10);
             }
         }
+
+        return true;
     }
 
     void update() {

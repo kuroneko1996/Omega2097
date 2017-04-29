@@ -47,8 +47,22 @@ public class Actor extends GameObject {
         return result;
     }
 
-    void takeDamage(float dmg) {
+    public void takeDamage(float dmg) {
         health.setCurrent(health.getCurrent() - dmg);
+    }
+
+    public float heal(float value) {
+        Stat<Float> health = getHealth();
+        float oldHealth = health.getCurrent();
+        if (!health.isMax()) {
+            float newValue = oldHealth + value;
+            if (newValue > health.getMax()) {
+                newValue = health.getMax();
+            }
+            health.setCurrent(newValue);
+            return (newValue - oldHealth);
+        }
+        return 0f;
     }
 
     @Override

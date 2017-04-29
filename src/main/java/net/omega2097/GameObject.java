@@ -7,6 +7,7 @@ public class GameObject {
     private Model model;
     private boolean destroyed = false;
     private boolean solid = false;
+    private boolean trigger = false;
 
     public String getModelName() {
         return modelName;
@@ -32,6 +33,14 @@ public class GameObject {
         this.solid = solid;
     }
 
+    public boolean isTrigger() {
+        return trigger;
+    }
+
+    public void setTrigger(boolean trigger) {
+        this.trigger = trigger;
+    }
+
     public String getName() {
         return name;
     }
@@ -42,6 +51,7 @@ public class GameObject {
 
     private String modelName;
     private String textureName;
+    private int textureIndex;
     protected Vector3f position;
     protected Vector3f rotation = new Vector3f(0,0,0);
     protected Vector3f scale = new Vector3f(1,1,1);
@@ -50,6 +60,14 @@ public class GameObject {
         this.position = new Vector3f(0,0,0);
         this.scale = new Vector3f(1,1,1);
         this.rotation = new Vector3f(0,0,0);
+    }
+
+    public int getTextureIndex() {
+        return textureIndex;
+    }
+
+    public void setTextureIndex(int textureIndex) {
+        this.textureIndex = textureIndex;
     }
 
     public Model getModel() {

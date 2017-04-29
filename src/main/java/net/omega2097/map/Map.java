@@ -1,13 +1,15 @@
 package net.omega2097.map;
 
+import net.omega2097.GameObject;
 import net.omega2097.actors.Actor;
 import net.omega2097.actors.EnemyAi;
 import net.omega2097.actors.Shooter;
+import net.omega2097.objects.Ammo;
 import net.omega2097.objects.Medkit;
+import net.omega2097.objects.Pickable;
 import net.omega2097.objects.Treasure;
 import net.omega2097.util.IRandom;
 import org.lwjgl.util.vector.Vector2f;
-import org.w3c.dom.css.Rect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +21,12 @@ public class Map implements IMap {
     private IRandom random;
     private List<Actor> guards = new ArrayList<>();
     private List<Actor> dogs = new ArrayList<>();
-    private List<Medkit> medkits = new ArrayList<>();
-    private List<Treasure> treasures = new ArrayList<>();
+    private List<GameObject> walls = new ArrayList<>();
+    private List<GameObject> doors = new ArrayList<>();
+    private List<Pickable> pickables = new ArrayList<>();
     private Vector2f playerSpawn = new Vector2f();
     private List<Vector2f> exits = new ArrayList<>();
+    private List<GameObject> objects = new ArrayList<>();
 
     @Override
     public int getWidth() {
@@ -78,15 +82,17 @@ public class Map implements IMap {
         exits.add(new Vector2f(x, y));
     }
 
-    public void addMedkit(int x, int y) {
+    public void addWall(int x, int y, String textureName, int textureIndex) {
         Tile tile = getTileAt(x, y);
-        if (tile.isWalkable() && !tile.isObject()) {
-            Medkit gameObject = new Medkit();
-            gameObject.setPosition(x, 0.5f, -y);
-            gameObject.setSolid(false);
-            medkits.add(gameObject);
-            tile.setObject(true);
-        }
+        tile.setWalkable(false);
+        tile.setTransparent(false);
+        GameObject gameObject = new GameObject();
+        gameObject.setPosition(x, 0.5f, -y);
+        gameObject.setSolid(true);
+        gameObject.setTextureName(textureName);
+        gameObject.setTextureIndex(textureIndex);
+        gameObject.setName("Wall x=" + x + ", y=" + y);
+        walls.add(gameObject);
     }
 
     public void addGuard(int x, int y) {
@@ -123,14 +129,49 @@ public class Map implements IMap {
         tile.setObject(true);
     }
 
-    public void addTreasure(int x, int y) {
+    public void addMedkit(int x, int y, String textureName, int textureIndex, int value, String name) {
+        Medkit medkit = new Medkit();
+        medkit.setValue(value);
+        addPickable(medkit, x, y, textureName, textureIndex, name);
+    }
+
+    public void addTreasure(int x, int y, String textureName, int textureIndex, int value, String name) {
+        Treasure treasure = new Treasure();
+        treasure.setValue(value);
+        addPickable(treasure, x, y, textureName, textureIndex, name);
+    }
+
+    public void addAmmo(int x, int y, String textureName, int textureIndex, int value, String name) {
+        Ammo ammo = new Ammo();
+        ammo.setValue(value);
+        addPickable(ammo, x, y, textureName, textureIndex, name);
+    }
+
+    void addPickable(Pickable gameObject, int x, int y, String textureName, int textureIndex, String name) {
         Tile tile = getTileAt(x, y);
 
-        Treasure gameObject = new Treasure();
         gameObject.setPosition(x, 0.5f, -y);
         gameObject.setSolid(false);
-        treasures.add(gameObject);
+        gameObject.setTrigger(true);
+        gameObject.setTextureName(textureName);
+        gameObject.setTextureIndex(textureIndex);
+        gameObject.setName(name);
+
+        pickables.add(gameObject);
         tile.setObject(true);
+    }
+
+    public void addObject(int x, int y, String textureName, int textureIndex, boolean solid, String name) {
+        Tile tile = getTileAt(x, y);
+        tile.setWalkable(true);
+        tile.setTransparent(true);
+        GameObject gameObject = new GameObject();
+        gameObject.setPosition(x, 0.5f, -y);
+        gameObject.setSolid(solid);
+        gameObject.setTextureName(textureName);
+        gameObject.setTextureIndex(textureIndex);
+        gameObject.setName(name);
+        objects.add(gameObject);
     }
 
     private void setPlayerSpawn(Rectangle room) {
@@ -166,7 +207,7 @@ public class Map implements IMap {
         while(number > 0) {
             int x = random.next(room.getX(), room.getRight());
             int y = random.next(room.getY(), room.getBottom());
-            addMedkit(x, y);
+            addMedkit(x, y, "textures/objects/food.png", 26, 10, "Food");
             number--;
         }
     }
@@ -179,7 +220,7 @@ public class Map implements IMap {
             int y = random.next(room.getY(), room.getBottom());
             Tile tile = getTileAt(x, y);
             if (tile.isWalkable() && !tile.isObject()) {
-                addTreasure(x, y);
+                addTreasure(x, y, "textures/objects/objects.png", 47, 100, "Chalice");
                 number--;
             }
         }
@@ -204,22 +245,20 @@ public class Map implements IMap {
         return dogs;
     }
 
-    public List<Medkit> getMedkits() {
-        return medkits;
+    public List<GameObject> getWalls() {
+        return walls;
     }
 
-    public List<Treasure> getTreasures() {
-        return treasures;
+    public List<Pickable> getPickables() {
+        return pickables;
     }
 
-    public Tile getRandomClearTile() {
-        Tile tile = new Tile(0, 0);
-        for(int i = 0; i < tiles.length; i++) {
-            if (tiles[i].isWalkable() && tiles[i].isTransparent() && !tiles[i].isObject()) {
-                tile = tiles[i];
-                break;
-            }
-        }
-        return tile;
+    public List<GameObject> getObjects() {
+        return objects;
     }
+
+    public List<GameObject> getDoors() {
+        return doors;
+    }
+
 }

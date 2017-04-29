@@ -223,14 +223,15 @@ public class Engine {
                 9, random);
 
         MapLoader mapLoader = new MapLoader(random);
-        map = mapLoader.load("res/maps/demo00.png");
+        map = mapLoader.load("res/maps/level1.png");
 
         addFloorAndCeil();
         addWalls();
+        addDoors();
+        addObjects();
         addGuards(map, primGen);
         addDogs(map, primGen);
-        addMedkits(map, primGen);
-        addTreasures(map, primGen);
+        addPickables(map, primGen);
         addPlayer();
         addHud();
         System.out.println("Total " + gameObjects.size() + " game objects have been created");
@@ -241,32 +242,88 @@ public class Engine {
         prepareRenderLists();
     }
 
+    private void setupGameObject(GameObject gameObject, java.util.Map<String, Model> textures) {
+        String textureName = gameObject.getTextureName();
+        String textureKey = textureName + gameObject.getTextureIndex();
+        Model model = textures.get(textureKey);
+        if (model == null) {
+            Texture texture = loader.loadTexture("res/" + textureName);
+            float[] uv = Util.calcUVinAtlas(texture.getWidth(), 8, gameObject.getTextureIndex());
+            model = primGen.generateVerticalQuad(1, 1, 0, uv[0], uv[1], uv[2], uv[3]);
+            model.setBillboard(true);
+            model.addTexture(texture);
+            textures.put(textureKey, model);
+        }
+        gameObject.setModel(model);
+
+        if (gameObject.isTrigger()) {
+            Vector3f bboxSize = new Vector3f(1, 1, 1);
+            Vector3f bboxCoord = new Vector3f(gameObject.getPosition().x - 0.5f,
+                    gameObject.getPosition().y - 0.5f, gameObject.getPosition().z - 0.5f);
+            BoundingBox bbox = new BoundingBox(bboxCoord, bboxSize);
+            gameObject.setCollider(new Collider(bbox));
+        }
+    }
+
+    private void addObjects() {
+        java.util.Map<String, Model> textures = new HashMap<>();
+        for (int i = 0; i < map.getObjects().size(); i++) {
+            GameObject gameObject = map.getObjects().get(i);
+            setupGameObject(gameObject, textures);
+            gameObjects.add(gameObject);
+        }
+    }
+
     private void addWalls() {
-        // generate game objects
-        String textureName = "w_wall1.png";
-        Model model = primGen.generateCube(1);
-        model.addTextureID(loader.loadTexture("res/" + textureName));
+        java.util.Map<String, Model> textures = new HashMap<>();
 
-        for (int x = 0; x < map.getWidth(); x++) {
-            for (int y = 0; y < map.getHeight(); y++) {
-                Tile tile = map.getTileAt(x, y);
-                if (!tile.isWalkable() && !tile.isTransparent()) {
-                    GameObject gameObject = new GameObject();
-                    gameObject.setName("Wall x=" + x + ", y=" + y);
-                    gameObject.setSolid(true);
-                    gameObject.setModel(model);
-                    gameObject.setPosition(x, 0.5f, -y);
-                    gameObject.setTextureName(textureName);
+        for (int i = 0; i < map.getWalls().size(); i++) {
+            GameObject wall = map.getWalls().get(i);
 
-                    Vector3f bboxSize = new Vector3f(1,1,1);
-                    Vector3f bboxCoord = new Vector3f(gameObject.getPosition().x - 0.5f,
-                            gameObject.getPosition().y - 0.5f,gameObject.getPosition().z - 0.5f);
-                    BoundingBox bbox = new BoundingBox(bboxCoord, bboxSize);
-                    gameObject.setCollider(new Collider(bbox));
-
-                    gameObjects.add(gameObject);
-                }
+            String textureName = wall.getTextureName();
+            String textureKey = textureName + wall.getTextureIndex();
+            Model model = textures.get(textureKey);
+            if (model == null) {
+                Texture texture = loader.loadTexture("res/" + textureName);
+                float[] uv = Util.calcUVinAtlas(texture.getWidth(), 2, wall.getTextureIndex());
+                model = primGen.generateCube(1, uv[0], uv[1], uv[2], uv[3]);
+                model.addTexture(texture);
+                textures.put(textureKey, model);
             }
+            wall.setModel(model);
+
+            Vector3f bboxSize = new Vector3f(1,1,1);
+            Vector3f bboxCoord = new Vector3f(wall.getPosition().x - 0.5f,
+                    wall.getPosition().y - 0.5f,wall.getPosition().z - 0.5f);
+            BoundingBox bbox = new BoundingBox(bboxCoord, bboxSize);
+            wall.setCollider(new Collider(bbox));
+
+            gameObjects.add(wall);
+        }
+    }
+
+    private void addDoors() {
+        java.util.Map<String, Model> textures = new HashMap<>();
+
+        for (int i = 0; i < map.getDoors().size(); i++) {
+            GameObject door = map.getDoors().get(i);
+
+            String textureName = door.getTextureName();
+            Model model = textures.get(textureName);
+            if (model == null) {
+                model = primGen.generateCube(1);
+                model.addTexture(loader.loadTexture("res/" + textureName));
+                textures.put(textureName, model);
+            }
+            door.setModel(model);
+
+            Vector3f bboxSize = new Vector3f(1,1,1);
+            Vector3f bboxCoord = new Vector3f(door.getPosition().x - 0.5f,
+                    door.getPosition().y - 0.5f,door.getPosition().z - 0.5f);
+            BoundingBox bbox = new BoundingBox(bboxCoord, bboxSize);
+            door.setCollider(new Collider(bbox));
+
+            gameObjects.add(door);
         }
     }
 
@@ -277,14 +334,14 @@ public class Engine {
         floor.setPosition(0,0,-map.getHeight());
         floor.setScale(map.getWidth(), 1, map.getHeight());
         floor.setTextureName("w_floor1.png");
-        floor.getModel().addTextureID(loader.loadTexture("res/" + floor.getTextureName()));
+        floor.getModel().addTexture(loader.loadTexture("res/" + floor.getTextureName()));
 
         GameObject ceil = new GameObject();
         ceil.setModel(primGen.generateHorizontalQuad(map.getWidth(), map.getHeight()));
         ceil.setPosition(0, 1,-map.getHeight());
         ceil.setScale(map.getWidth(), 1, map.getHeight());
         ceil.setTextureName("w_ceil1.png");
-        ceil.getModel().addTextureID(loader.loadTexture("res/" + ceil.getTextureName()));
+        ceil.getModel().addTexture(loader.loadTexture("res/" + ceil.getTextureName()));
 
         gameObjects.add(floor);
         gameObjects.add(ceil);
@@ -294,7 +351,8 @@ public class Engine {
         player = new Player();
         player.setName("Player");
         player.setMouseInput(mouseInput);
-        player.getHealth().setCurrent(100f).setMax(100f);
+        player.getHealth().setMax(100f).setCurrent(100f);
+        player.getAmmo().setMax(999).setCurrent(10);
 
         Vector3f bboxSize = new Vector3f(0.5f,0.8f,0.5f);
         Vector3f bboxCoord = new Vector3f(-0.5f, -0.5f, -0.5f);
@@ -326,7 +384,7 @@ public class Engine {
         gun.setModel(primGen.generateRectangle(gunX1, gunY1,
                 gunX2, gunY2, 0));
         gun.setTextureName("textures/gui/weapons/pistol.png");
-        gun.getModel().addTextureID(loader.loadTexture("res/" + gun.getTextureName()));
+        gun.getModel().addTexture(loader.loadTexture("res/" + gun.getTextureName()));
 
         hud.add(gun);
         player.setGun(gun);
@@ -334,7 +392,7 @@ public class Engine {
         GameObject hudPanel = new GameObject();
         hudPanel.setModel(primGen.generateRectangle(0,0, window.width, 80, 0, 0, 280f/320f, 1, 1));
         hudPanel.setTextureName("textures/gui/hud.png");
-        hudPanel.getModel().addTextureID(loader.loadTexture("res/" + hudPanel.getTextureName()));
+        hudPanel.getModel().addTexture(loader.loadTexture("res/" + hudPanel.getTextureName()));
         hud.add(hudPanel);
 
 
@@ -355,14 +413,16 @@ public class Engine {
                 font, "ISO-8859-1", textSize, loader);
         hud.add(livesText);
 
-        TextItem healthText = new TextItem(levelTextX + 300, levelTextY, String.format("%03d", player.getHealth().getCurrent().intValue()),
+        TextItem healthText = new TextItem(levelTextX + 300, levelTextY, "000",
                 font, "ISO-8859-1", textSize, loader);
         hud.add(healthText);
         hud.setPlayerHealth(healthText);
 
-        TextItem ammoText = new TextItem(levelTextX + 385, levelTextY, String.format("%03d",999),
+        TextItem ammoText = new TextItem(levelTextX + 385, levelTextY, "000",
                 font, "ISO-8859-1", textSize, loader);
         hud.add(ammoText);
+        hud.setPlayerAmmo(ammoText);
+        hud.setUpdated(true);
     }
 
     private void addDogs(Map map, PrimitivesGenerator primGen) {
@@ -372,9 +432,9 @@ public class Engine {
                 "dying_0.png", "dying_1.png", "dying_2.png",
                 "dead.png"
         };
-        int[] textureIDs = new int[textureNames.length];
+        Texture[] textures = new Texture[textureNames.length];
         for (int i = 0; i < textureNames.length; i++) {
-            textureIDs[i] = loader.loadTexture("res/" + "textures/dog/" + textureNames[i] );
+            textures[i] = loader.loadTexture("res/" + "textures/dog/" + textureNames[i] );
         }
         Animation[] animations = new Animation[]{
                 new Animation(new int[]{0}, true, 250), // idle
@@ -393,8 +453,8 @@ public class Engine {
             EnemyAi enemyAi = (EnemyAi)enemy.getAi();
             enemyAi.setAnimations(animations);
 
-            for(int textureID : textureIDs) {
-                enemy.getModel().addTextureID(textureID);
+            for(Texture texture : textures) {
+                enemy.getModel().addTexture(texture);
             }
 
             Vector3f bSize = new Vector3f(0.4f, 0.8f, 0.4f);
@@ -413,9 +473,9 @@ public class Engine {
                 "dying_0.png", "dying_1.png", "dying_2.png","dying_3.png",
                 "dead.png"
         };
-        int[] textureIDs = new int[textureNames.length];
+        Texture[] textures = new Texture[textureNames.length];
         for (int i = 0; i < textureNames.length; i++) {
-            textureIDs[i] = loader.loadTexture("res/" + "textures/guard/" + textureNames[i] );
+            textures[i] = loader.loadTexture("res/" + "textures/guard/" + textureNames[i] );
         }
 
         Animation[] animations = new Animation[]{
@@ -436,8 +496,8 @@ public class Engine {
             enemyAi.setAnimations(animations);
             enemy.getShooter().setShootDelay(animations[2].getFrameDuration() * animations[2].getTotalFrames());
 
-            for(int textureID : textureIDs) {
-                enemy.getModel().addTextureID(textureID);
+            for(Texture texture : textures) {
+                enemy.getModel().addTexture(texture);
             }
 
             Vector3f bSize = new Vector3f(0.4f, 0.8f, 0.4f);
@@ -449,39 +509,12 @@ public class Engine {
         }
     }
 
-    private void addMedkits(Map map, PrimitivesGenerator primGen) {
-        for (int i = 0; i < map.getMedkits().size(); i++) {
-            GameObject medkit = map.getMedkits().get(i);
-            medkit.setName("Medkit " + i);
-            medkit.setModel(primGen.generateVerticalQuad(1, 1));
-            medkit.getModel().setBillboard(true);
-            medkit.setTextureName("textures/objects/medkit.png");
-            medkit.getModel().addTextureID(loader.loadTexture("res/" + medkit.getTextureName()));
-
-            Vector3f bSize = new Vector3f(1f, 0.5f, 1f);
-            Vector3f bCenter = new Vector3f(medkit.getPosition().x - 0.5f, medkit.getPosition().y - 0.25f,
-                    medkit.getPosition().z - 0.5f);
-            BoundingBox bbox = new BoundingBox(bCenter, bSize);
-            medkit.setCollider(new Collider(bbox));
-            gameObjects.add(medkit);
-        }
-    }
-
-    private void addTreasures(Map map, PrimitivesGenerator primGen) {
-        for (int i = 0; i < map.getTreasures().size(); i++) {
-            GameObject treasure = map.getTreasures().get(i);
-            treasure.setName("Treasure " + i);
-            treasure.setModel(primGen.generateVerticalQuad(1, 1));
-            treasure.getModel().setBillboard(true);
-            treasure.setTextureName("textures/objects/chalice.png");
-            treasure.getModel().addTextureID(loader.loadTexture("res/" + treasure.getTextureName()));
-
-            Vector3f bSize = new Vector3f(1f, 0.5f, 1f);
-            Vector3f bCenter = new Vector3f(treasure.getPosition().x - 0.5f, treasure.getPosition().y - 0.25f,
-                    treasure.getPosition().z - 0.5f);
-            BoundingBox bbox = new BoundingBox(bCenter, bSize);
-            treasure.setCollider(new Collider(bbox));
-            gameObjects.add(treasure);
+    private void addPickables(Map map, PrimitivesGenerator primGen) {
+        java.util.Map<String, Model> textures = new HashMap<>();
+        for (int i = 0; i < map.getPickables().size(); i++) {
+            GameObject gameObject = map.getPickables().get(i);
+            setupGameObject(gameObject, textures);
+            gameObjects.add(gameObject);
         }
     }
 
@@ -613,4 +646,6 @@ public class Engine {
     public Game getGame() {
         return game;
     }
+
+    public Hud getHud() { return hud; }
 }

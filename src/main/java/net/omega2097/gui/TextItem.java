@@ -36,7 +36,7 @@ public class TextItem extends GameObject {
         model = loader.load(buildMesh(font.getNumRows(), font.getNumCols()));
         setModel(model);
         setTextureName(font.getFileName());
-        getModel().addTextureID(font.getTextureID());
+        getModel().addTexture(font.getTexture());
     }
 
     public String getText() {
@@ -56,8 +56,8 @@ public class TextItem extends GameObject {
         int numChars = chars.length;
         float zPos = 0.01f; // TODO options
 
-        float tileWidth = (float)font.getTextureWidth() / (float)numCols * this.size;
-        float tileHeight = (float)font.getTextureHeight() / (float)numRows * this.size;
+        float tileWidth = (float)font.getTexture().getWidth() / (float)numCols * this.size;
+        float tileHeight = (float)font.getTexture().getHeight() / (float)numRows * this.size;
         List<Vector2f> texCoordinates = new ArrayList<>();
 
         for(int i = 0; i < numChars; i++) {

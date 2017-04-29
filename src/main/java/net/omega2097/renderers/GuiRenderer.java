@@ -3,6 +3,7 @@ package net.omega2097.renderers;
 import net.omega2097.GameObject;
 import net.omega2097.Model;
 import net.omega2097.shaders.GuiShader;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -31,6 +32,7 @@ public class GuiRenderer extends MeshRenderer {
         if (renderEntities.isEmpty()) return;
         GuiShader shader = guiShader;
 
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
         shader.start();
         // load uniforms
         shader.loadProjectionMatrix(guiProjectionMatrix);
@@ -49,6 +51,7 @@ public class GuiRenderer extends MeshRenderer {
         }
 
         shader.stop();
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
     }
 
     private void createGuiProjectionMatrix() {

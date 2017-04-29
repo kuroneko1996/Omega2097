@@ -1,6 +1,7 @@
 package net.omega2097.gui;
 
 import net.omega2097.ILoader;
+import net.omega2097.Texture;
 
 public class BitmapFont {
     private String fileName;
@@ -8,9 +9,7 @@ public class BitmapFont {
     private int numCols;
     private ILoader loader;
 
-    private int textureWidth = 256;
-    private int textureHeight = 256;
-    private int textureID;
+    private Texture texture;
 
     public BitmapFont(String fileName, int numRows, int numCols, ILoader loader) {
         this.fileName = fileName;
@@ -18,7 +17,7 @@ public class BitmapFont {
         this.numCols = numCols;
 
         this.loader = loader;
-        this.textureID = loader.loadTexture(fileName);
+        this.texture = loader.loadTexture(fileName);
     }
 
 
@@ -30,19 +29,11 @@ public class BitmapFont {
         return numCols;
     }
 
-    public int getTextureWidth() {
-        return textureWidth;
-    }
-
-    public int getTextureHeight() {
-        return textureHeight;
-    }
-
     public String getFileName() {
         return fileName;
     }
 
-    public int getTextureID() {
-        return textureID;
+    public Texture getTexture() {
+        return texture;
     }
 }

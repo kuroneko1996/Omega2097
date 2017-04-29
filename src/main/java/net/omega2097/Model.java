@@ -13,9 +13,8 @@ public class Model {
 
     private Mesh mesh;
     private int vertexCount;
-    private int textureID;
     private boolean textured = false; // doesn't have uv coordinates
-    private List<Integer> textureIDs = new ArrayList<>();
+    private List<Texture> textures = new ArrayList<>();
     private int currentTexture = 0;
 
     private boolean billboard = false;
@@ -84,12 +83,12 @@ public class Model {
         this.textured = textured;
     }
 
-    public void addTextureID(int textureID) {
-        this.textureIDs.add(textureID);
+    public void addTexture(Texture texture) {
+        this.textures.add(texture);
     }
 
     public int getTextureID() {
-        return textureIDs.get(currentTexture);
+        return textures.get(currentTexture).getId();
     }
 
     public void setCurrentTexture(int number) {
