@@ -7,6 +7,7 @@ import net.omega2097.gui.BitmapFont;
 import net.omega2097.gui.Hud;
 import net.omega2097.gui.TextItem;
 import net.omega2097.map.Map;
+import net.omega2097.map.MapLoader;
 import net.omega2097.map.RandomRoomGenerator;
 import net.omega2097.map.Tile;
 import net.omega2097.renderers.BatchRenderer;
@@ -17,6 +18,7 @@ import net.omega2097.util.Random;
 import net.omega2097.util.Util;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import net.omega2097.shaders.StaticShader;
 
@@ -219,8 +221,9 @@ public class Engine {
         Random random = new Random(998);
         RandomRoomGenerator<Map> roomGenerator = new RandomRoomGenerator<>(32,32, 10, 6,
                 9, random);
-        map = new Map(random);
-        roomGenerator.createMap(map);
+
+        MapLoader mapLoader = new MapLoader(random);
+        map = mapLoader.load("res/maps/demo00.png");
 
         addFloorAndCeil();
         addWalls();
@@ -299,9 +302,9 @@ public class Engine {
         player.setCollider(new Collider(pbox));
         player.setCamera(camera);
 
-        Tile startTile = map.getRandomClearTile();
-        System.out.println("Start at " + startTile.getX() + ", " + startTile.getY());
-        player.setPosition(startTile.getX() + 0.5f, 0.5f, -startTile.getY() + 0.5f);
+        Vector2f spawnPos = map.getPlayerSpawn();
+        System.out.println("Start at " + spawnPos.getX() + ", " + spawnPos.getY());
+        player.setPosition(spawnPos.getX() + 0.5f, 0.5f, -spawnPos.getY() + 0.5f);
 
     }
 

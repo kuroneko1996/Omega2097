@@ -45,4 +45,28 @@ public class Image {
         height = h.get(0);
         channels = ch.get(0);
     }
+
+    // TODO rgb order and transparency
+    public int[] bufferToIntArray() {
+        ByteBuffer buffer = image;
+        byte byteArr[] = new byte[buffer.remaining()];
+        buffer.slice().get(byteArr);
+
+        int intArr[] = new int[byteArr.length / 3];
+        int offset = 0;
+
+        for (int i = 0; i < intArr.length; i++) {
+            int b = (byteArr[offset + 2]) & 0xFF;
+            int g = (byteArr[offset + 1]) & 0xFF;
+            int r = (byteArr[offset + 0]) & 0xFF;
+
+            int color = (r << 16) | (g << 8) | b;
+            // System.out.println( Integer.toHexString(color) );
+
+            intArr[i] = color;
+            offset += 3;
+        }
+
+        return intArr;
+    }
 }
